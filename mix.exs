@@ -37,6 +37,8 @@ defmodule FileStorageApi.MixProject do
 
   defp package do
     [
+      description:
+        "Package to allow uploading to multiple different asset storage through 1 api. Configurable through env vars.",
       maintainers: ["Nulian"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/bettyblocks/file_storage_api"}
@@ -47,11 +49,12 @@ defmodule FileStorageApi.MixProject do
   defp deps do
     [
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:excoveralls, "~> 0.10", only: :test},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
-      {:ex_microsoft_azure_storage, github: "bettyblocks/ex_microsoft_azure_storage", branch: "master"},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
+      {:ex_microsoft_azure_storage, "~> 0.1.0"},
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:excoveralls, "~> 0.10", only: :test},
       {:file_info, "~> 0.0.4"},
       {:mox, "~> 1.0", only: :test},
       {:recase, "~> 0.5"},
