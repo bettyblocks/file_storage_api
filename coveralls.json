@@ -1,0 +1,8 @@
+{
+  "skip_files": [
+    "deps",
+    "test",
+    "lib/page_translation_compiler.ex",
+    "lib/page_translation_compiler_web.ex"
+  ]
+}
