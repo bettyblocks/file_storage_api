@@ -12,6 +12,7 @@ defmodule FileStorageApi.File do
 
   import FileStorageApi.Base
 
+  @spec upload(String.t(), String.t(), String.t()) :: {:ok, String.t()} | {:error, map}
   def upload(container_name, filename, blob_name) do
     case api_module(File).upload(container_name, filename, blob_name) do
       {:ok, file} -> {:ok, file}
@@ -19,10 +20,12 @@ defmodule FileStorageApi.File do
     end
   end
 
+  @spec delete(String.t(), String.t()) :: {:ok, map} | {:error, map}
   def delete(container_name, filename) do
     api_module(File).delete(container_name, filename)
   end
 
+  @spec public_url(String.t(), String.t(), DateTime.t(), DateTime.t()) :: {:ok, String.t()} | {:error, String.t()}
   def public_url(
         container_name,
         file_path,
@@ -32,12 +35,16 @@ defmodule FileStorageApi.File do
     api_module(File).public_url(container_name, file_path, start_time, expire_time)
   end
 
-  def upload_file_from_content(filename, application_id, content, blob_name) do
+  @spec upload_file_from_content(binary, binary, binary, binary) :: {:ok, String.t()} | {:error, map}
+  @doc """
+  This function will create a temporary file and upload to asset store
+  """
+  def upload_file_from_content(filename, container_name, content, blob_name) do
     Temp.track!()
     {:ok, dir_path} = Temp.mkdir("file-cache")
     file_path = Path.join(dir_path, filename)
     File.write(file_path, content)
-    upload("#{application_id}", file_path, blob_name)
+    upload(container_name, file_path, blob_name)
   after
     Temp.cleanup()
   end
