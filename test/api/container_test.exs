@@ -13,11 +13,13 @@ defmodule FileStorageApi.ContainerTest do
   end
 
   test "listing files returns a function" do
-    assert is_function(Container.list_files([]))
+    assert is_function(Container.list_files("test-container", []))
   end
 
   test "listing files" do
-    expect(MockContainer, :list_files, fn _options ->
+    expect(MockContainer, :list_files, fn container_name, _options ->
+      assert container_name == "test-container"
+
       {:ok,
        %Container{
          max_results: "5000",
@@ -27,12 +29,14 @@ defmodule FileStorageApi.ContainerTest do
        }}
     end)
 
-    assert [%File{name: "test.jpg", properties: %{}}] == Enum.map(Container.list_files([]), & &1)
+    assert [%File{name: "test.jpg", properties: %{}}] == Enum.map(Container.list_files("test-container", []), & &1)
   end
 
   test "be able to list files on multiple pages" do
     expect(MockContainer, :list_files, 2, fn
-      [marker: "next_marker"] ->
+      container_name, [marker: "next_marker"] ->
+        assert container_name == "test-container"
+
         {:ok,
          %Container{
            files: [
@@ -44,7 +48,9 @@ defmodule FileStorageApi.ContainerTest do
            next_marker: ""
          }}
 
-      _options ->
+      container_name, _options ->
+        assert container_name == "test-container"
+
         {:ok,
          %Container{
            files: [
@@ -63,7 +69,7 @@ defmodule FileStorageApi.ContainerTest do
                name: "test_delete",
                properties: %{}
              }
-           ] == Enum.map(Container.list_files([]), & &1)
+           ] == Enum.map(Container.list_files("test-container", []), & &1)
   end
 
   test "able to create the container" do
