@@ -3,8 +3,8 @@ defmodule FileStorageApi.API.Azure.BaseTest do
 
   alias FileStorageApi.API.Azure.Base
 
-  alias Microsoft.Azure.Storage
-  alias Microsoft.Azure.Storage.Container
+  alias Azure.Storage
+  alias Azure.Storage.Container
 
   test "module exists" do
     assert is_list(Base.module_info())
@@ -18,7 +18,7 @@ defmodule FileStorageApi.API.Azure.BaseTest do
     assert %Storage{
              account_name: "account_name",
              account_key: Keyword.fetch!(azure_blob, :account_key),
-             cloud_environment_suffix: "env_suffix"
+             endpoint_suffix: "env_suffix"
            } == Base.storage()
   end
 
@@ -35,7 +35,8 @@ defmodule FileStorageApi.API.Azure.BaseTest do
              account_name: "devstoreaccount1",
              account_key: "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==",
              host: "127.0.0.1",
-             is_development_factory: true
+             is_development_factory: true,
+             default_endpoints_protocol: "http"
            } == Base.storage()
   end
 

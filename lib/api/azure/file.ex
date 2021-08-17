@@ -2,8 +2,8 @@ defmodule FileStorageApi.API.Azure.File do
   @moduledoc false
   @behaviour FileStorageApi.File
   import FileStorageApi.API.Azure.Base
-  alias Microsoft.Azure.Storage
-  alias Microsoft.Azure.Storage.{ApiVersion, Blob, SharedAccessSignature}
+  alias Azure.Storage
+  alias Azure.Storage.{ApiVersion, Blob, SharedAccessSignature}
 
   @impl true
   def upload(container_name, filename, blob_name) do

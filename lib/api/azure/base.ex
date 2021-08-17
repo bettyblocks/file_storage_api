@@ -1,8 +1,8 @@
 defmodule FileStorageApi.API.Azure.Base do
   @moduledoc false
 
-  alias Microsoft.Azure.Storage
-  alias Microsoft.Azure.Storage.Container
+  alias Azure.Storage
+  alias Azure.Storage.Container
 
   def storage do
     azure_blob = Application.get_env(:file_storage_api, :azure_blob)
@@ -13,7 +13,7 @@ defmodule FileStorageApi.API.Azure.Base do
       %Storage{
         account_name: Keyword.fetch!(azure_blob, :account_name),
         account_key: Keyword.fetch!(azure_blob, :account_key),
-        cloud_environment_suffix: Keyword.fetch!(azure_blob, :environment_suffix)
+        endpoint_suffix: Keyword.fetch!(azure_blob, :environment_suffix)
       }
     end
   end

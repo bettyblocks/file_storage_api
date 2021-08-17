@@ -4,7 +4,7 @@ defmodule FileStorageApi.MixProject do
   def project do
     [
       app: :file_storage_api,
-      version: "0.1.2",
+      version: "0.2.0",
       elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       elixirc_options: [warnings_as_errors: Mix.env() != :test],
@@ -48,12 +48,12 @@ defmodule FileStorageApi.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:azure, "~> 0.3"},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
-      {:ex_microsoft_azure_storage, "~> 0.1.0"},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
       {:file_info, "~> 0.0.4"},
       {:mox, "~> 1.0", only: :test},
