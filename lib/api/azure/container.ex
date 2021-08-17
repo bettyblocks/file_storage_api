@@ -12,8 +12,8 @@ defmodule FileStorageApi.API.Azure.Container do
   end
 
   @impl true
-  def list_files(options) do
-    case AzureContainer.list_blobs(container("block-store-container"), convert_options(options)) do
+  def list_files(container_name, options) do
+    case AzureContainer.list_blobs(container(container_name), convert_options(options)) do
       {:ok, %{blobs: files, max_results: max_results, next_marker: next_marker, date: date}} ->
         {:ok,
          %Container{

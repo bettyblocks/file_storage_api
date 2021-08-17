@@ -14,8 +14,8 @@ defmodule FileStorageApi.API.S3.Container do
   end
 
   @impl true
-  def list_files(options) do
-    "block-store-container"
+  def list_files(container_name, options) do
+    container_name
     |> S3.list_objects(convert_options(options))
     |> request()
     |> case do

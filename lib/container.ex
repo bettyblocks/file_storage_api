@@ -12,7 +12,7 @@ defmodule FileStorageApi.Container do
         }
   @callback create(String.t()) :: {:ok, map} | {:error, map}
   @type options :: [{:max_results, non_neg_integer} | {:marker, String.t()}]
-  @callback list_files(options) :: {:ok, [__MODULE__.t()]} | {:error, map}
+  @callback list_files(String.t(), options) :: {:ok, [__MODULE__.t()]} | {:error, map}
 
   defstruct name: nil, files: [], max_results: nil, next_marker: nil, date: nil
 
@@ -23,8 +23,8 @@ defmodule FileStorageApi.Container do
     api_module(Container).create(container_name)
   end
 
-  @spec list_files(options) :: Enumerable.t()
-  def list_files(options \\ []) do
+  @spec list_files(String.t(), options) :: Enumerable.t()
+  def list_files(container_name, options \\ []) do
     filtered_options =
       if Keyword.has_key?(options, :max_results) do
         [max_results: Keyword.fetch!(options, :max_results)]
@@ -33,13 +33,13 @@ defmodule FileStorageApi.Container do
       end
 
     Stream.resource(
-      fn -> api_module(Container).list_files(options) end,
+      fn -> api_module(Container).list_files(container_name, options) end,
       fn
         {:ok, %{files: files, next_marker: ""}} ->
           {files, :eos}
 
         {:ok, %{files: files, next_marker: next_marker}} ->
-          {files, api_module(Container).list_files([marker: next_marker] ++ filtered_options)}
+          {files, api_module(Container).list_files(container_name, [marker: next_marker] ++ filtered_options)}
 
         :eos ->
           {:halt, :eos}
