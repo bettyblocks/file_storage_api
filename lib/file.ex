@@ -35,7 +35,7 @@ defmodule FileStorageApi.File do
     api_module(File).public_url(container_name, file_path, start_time, expire_time)
   end
 
-  @spec upload_file_from_content(binary, binary, binary, binary) :: {:ok, String.t()} | {:error, map}
+  @spec upload_file_from_content(binary, binary, binary | iodata, binary) :: {:ok, String.t()} | {:error, map}
   @doc """
   This function will create a temporary file and upload to asset store
   """
