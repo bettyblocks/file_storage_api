@@ -80,4 +80,10 @@ defmodule FileStorageApi.API.S3.FileTest do
 
     assert {:error, %{}} = File.upload("block-store-container", file_path, nil)
   end
+
+  test "should be able to correctly convert modified at" do
+    file = %FileStorageApi.File{name: "test.png", properties: %{key: "test.png", other: "waat", last_modified: "2021-08-19T15:17:22.775Z"}}
+
+    assert {:ok, ~U[2021-08-19 15:17:22.775Z]} == File.last_modified(file)
+  end
 end

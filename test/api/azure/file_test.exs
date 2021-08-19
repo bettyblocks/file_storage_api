@@ -32,4 +32,10 @@ defmodule FileStorageApi.API.Azure.FileTest do
 
     %{"se" => ^expire_time_str, "st" => ^start_time_str} = URI.decode_query(uri.query)
   end
+
+  test "should be able to correctly convert modified at" do
+    file = %FileStorageApi.File{name: "test.png", properties: %{key: "test.png", other: "waat", last_modified: ~U[2021-08-19 15:17:22.775Z]}}
+
+    assert {:ok, ~U[2021-08-19 15:17:22.775Z]} == File.last_modified(file)
+  end
 end

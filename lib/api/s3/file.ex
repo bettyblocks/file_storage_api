@@ -37,4 +37,11 @@ defmodule FileStorageApi.API.S3.File do
 
     S3.presigned_url(config(), :get, container_name, file_path, expires_in: expires_in)
   end
+
+  @impl true
+  def last_modified(%FileStorageApi.File{properties: %{last_modified: timestamp}}) do
+    Timex.parse(timestamp, "{ISO:Extended}")
+  end
+
+  def last_modified(_), do: {:error, :incorrect_format}
 end

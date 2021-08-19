@@ -52,6 +52,13 @@ defmodule FileStorageApi.API.Azure.File do
     {:ok, "#{Storage.endpoint_url(storage, :blob_service)}/#{container_name}/#{file_path}?#{signature}"}
   end
 
+  @impl true
+  def last_modified(%FileStorageApi.File{properties: %{last_modified: timestamp}}) do
+    {:ok, timestamp}
+  end
+
+  def last_modified(_), do: {:error, :incorrect_format}
+
   defp storage_protocol(%{is_development_factory: true}), do: "http"
   defp storage_protocol(_context), do: "https"
 end
