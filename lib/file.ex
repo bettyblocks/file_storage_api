@@ -4,7 +4,7 @@ defmodule FileStorageApi.File do
   """
 
   @type t :: %__MODULE__{name: String.t(), properties: map}
-  @callback upload(String.t(), String.t(), String.t()) :: {:ok, String.t()} | {:error, map}
+  @callback upload(String.t(), String.t(), String.t()) :: {:ok, String.t()} | {:error, map | tuple}
   @callback delete(String.t(), String.t()) :: {:ok, map} | {:error, map}
   @callback public_url(String.t(), String.t(), DateTime.t(), DateTime.t()) :: {:ok, String.t()} | {:error, String.t()}
   @callback last_modified(t) :: {:ok, DateTime.t()} | {:error, atom}
@@ -13,7 +13,7 @@ defmodule FileStorageApi.File do
 
   import FileStorageApi.Base
 
-  @spec upload(String.t(), String.t(), String.t()) :: {:ok, String.t()} | {:file_upload_error, map}
+  @spec upload(String.t(), String.t(), String.t()) :: {:ok, String.t()} | {:file_upload_error, map | tuple}
   @doc """
   Function to upload file has input args
   container_name: name of the container
@@ -57,7 +57,7 @@ defmodule FileStorageApi.File do
   def last_modified(file), do: api_module(File).last_modified(file)
 
   @spec upload_file_from_content(binary, binary, binary | iodata, binary) ::
-          {:ok, String.t()} | {:file_upload_error, map}
+          {:ok, String.t()} | {:file_upload_error, map | tuple}
   @doc """
   This function will create a temporary file and upload to asset store
   """
