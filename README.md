@@ -1,5 +1,5 @@
-![elixir workflow](https://github.com/bettyblocks/file_storage_api/workflows/elixir.yml/badge.svg)
-[![Hex.pm](https://img.shields.io/hexpm/v/file_caching_service.svg)]()
+![elixir workflow](https://github.com/bettyblocks/file_storage_api/actions/workflows/elixir.yml/badge.svg)
+[![Hex.pm](https://img.shields.io/hexpm/v/file_storage_api.svg)]()
 
 # FileStorageApi
 
