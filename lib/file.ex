@@ -13,7 +13,7 @@ defmodule FileStorageApi.File do
 
   import FileStorageApi.Base
 
-  @spec upload(String.t(), String.t(), String.t()) :: {:ok, String.t()} | {:error, map}
+  @spec upload(String.t(), String.t(), String.t()) :: {:ok, String.t()} | {:file_upload_error, map}
   def upload(container_name, filename, blob_name) do
     case api_module(File).upload(container_name, filename, blob_name) do
       {:ok, file} -> {:ok, file}
@@ -38,7 +38,8 @@ defmodule FileStorageApi.File do
 
   def last_modified(file), do: api_module(File).last_modified(file)
 
-  @spec upload_file_from_content(binary, binary, binary | iodata, binary) :: {:ok, String.t()} | {:error, map}
+  @spec upload_file_from_content(binary, binary, binary | iodata, binary) ::
+          {:ok, String.t()} | {:file_upload_error, map}
   @doc """
   This function will create a temporary file and upload to asset store
   """
