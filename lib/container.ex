@@ -1,6 +1,6 @@
 defmodule FileStorageApi.Container do
   @moduledoc """
-  Module for handling containers
+  Module for handling asset containers
   """
 
   @type t :: %__MODULE__{
@@ -19,11 +19,21 @@ defmodule FileStorageApi.Container do
   import FileStorageApi.Base
 
   @spec create(String.t()) :: any
+  @doc """
+  Will create container with binary as input for bucket name
+  """
   def create(container_name) do
     api_module(Container).create(container_name)
   end
 
   @spec list_files(String.t(), options) :: Enumerable.t()
+  @doc """
+  List all files in the container.
+
+  Options are available for max_results: which can be adjusted.
+
+  It's build around stream so will automatically use the markers to get as many items as are  in the bucket.
+  """
   def list_files(container_name, options \\ []) do
     filtered_options =
       if Keyword.has_key?(options, :max_results) do

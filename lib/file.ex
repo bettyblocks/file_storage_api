@@ -1,6 +1,6 @@
 defmodule FileStorageApi.File do
   @moduledoc """
-  Module for file handling
+  Module for uploading deleting and fetching url of file
   """
 
   @type t :: %__MODULE__{name: String.t(), properties: map}
@@ -14,6 +14,14 @@ defmodule FileStorageApi.File do
   import FileStorageApi.Base
 
   @spec upload(String.t(), String.t(), String.t()) :: {:ok, String.t()} | {:file_upload_error, map}
+  @doc """
+  Function to upload file has input args
+  container_name: name of the container
+  filename: path to the file with the data to store
+  blob_name: how the blob is going to be called after storage
+
+  Returns reference to the file in the asset store
+  """
   def upload(container_name, filename, blob_name) do
     case api_module(File).upload(container_name, filename, blob_name) do
       {:ok, file} -> {:ok, file}
@@ -22,11 +30,21 @@ defmodule FileStorageApi.File do
   end
 
   @spec delete(String.t(), String.t()) :: {:ok, map} | {:error, map}
+  @doc """
+  Function to delete files
+
+  Has 2 inputs
+  container_name: name of container file is stored in
+  filename: reference path of the file stored in the container
+  """
   def delete(container_name, filename) do
     api_module(File).delete(container_name, filename)
   end
 
   @spec public_url(String.t(), String.t(), DateTime.t(), DateTime.t()) :: {:ok, String.t()} | {:error, String.t()}
+  @doc """
+  public_url returns an full url to be able to fetch the file with security tokens needed by default 1 day valid
+  """
   def public_url(
         container_name,
         file_path,
