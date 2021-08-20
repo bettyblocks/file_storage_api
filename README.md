@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/bettyblocks/file_storage_api/workflows/CI/badge.svg)](https://github.com/bettyblocks/file_storage_api/actions?query=workflow%3ACI)
+![elixir workflow](https://github.com/bettyblocks/file_storage_api/workflows/elixir/badge.svg)
 
 # FileStorageApi
 
