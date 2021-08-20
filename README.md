@@ -1,6 +1,8 @@
+[![Build Status](https://github.com/bettyblocks/file_storage_api/workflows/CI/badge.svg)](https://github.com/bettyblocks/file_storage_api/actions?query=workflow%3ACI)
+
 # FileStorageApi
 
-**TODO: Add description**
+Library to be able to upload and manage files to different storage service azure/s3 
 
 ## Installation
 
@@ -10,7 +12,7 @@ by adding `file_storage_api` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:file_storage_api, "~> 0.1.0"}
+    {:file_storage_api, "~> 0.3"}
   ]
 end
 ```
@@ -18,4 +20,3 @@ end
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at [https://hexdocs.pm/file_storage_api](https://hexdocs.pm/file_storage_api).
-
