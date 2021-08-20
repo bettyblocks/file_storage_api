@@ -1,5 +1,6 @@
 ![elixir workflow](https://github.com/bettyblocks/file_storage_api/actions/workflows/elixir.yml/badge.svg)
 [![Hex.pm](https://img.shields.io/hexpm/v/file_storage_api.svg)]()
+[![Hex Docs](https://img.shields.io/badge/hex-docs-blue.svg)](https://hexdocs.pm/file_storage_api)
 
 # FileStorageApi
 
@@ -7,8 +8,7 @@ Library to be able to upload and manage files to different storage service azure
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `file_storage_api` to your list of dependencies in `mix.exs`:
+It can be added to your project by adding
 
 ```elixir
 def deps do
