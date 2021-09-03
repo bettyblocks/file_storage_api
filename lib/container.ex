@@ -10,7 +10,7 @@ defmodule FileStorageApi.Container do
           next_marker: String.t(),
           date: DateTime.t()
         }
-  @callback create(String.t()) :: {:ok, map} | {:error, map}
+  @callback create(String.t(), map) :: {:ok, map} | {:error, map}
   @type options :: [{:max_results, non_neg_integer} | {:marker, String.t()}]
   @callback list_files(String.t(), options) :: {:ok, [__MODULE__.t()]} | {:error, map}
 
@@ -21,9 +21,11 @@ defmodule FileStorageApi.Container do
   @spec create(String.t()) :: any
   @doc """
   Will create container with binary as input for bucket name
+
+  Opts allows for setting cors_policy as map or true will only be applied to S3
   """
-  def create(container_name) do
-    api_module(Container).create(container_name)
+  def create(container_name, opts \\ %{}) do
+    api_module(Container).create(container_name, opts)
   end
 
   @spec list_files(String.t(), options) :: Enumerable.t()

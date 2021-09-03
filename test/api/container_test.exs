@@ -73,7 +73,7 @@ defmodule FileStorageApi.ContainerTest do
   end
 
   test "able to create the container" do
-    expect(MockContainer, :create, fn "block-store-container" ->
+    expect(MockContainer, :create, fn "block-store-container", %{} ->
       {:ok, %{}}
     end)
 

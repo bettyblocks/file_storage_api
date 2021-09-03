@@ -17,7 +17,26 @@ defmodule FileStorageApi.API.S3.ContainerTest do
       {:ok, %{}}
     end)
 
-    assert {:ok, %{}} == Container.create()
+    assert {:ok, %{}} == Container.create("block-store-container", %{})
+  end
+
+  test "able to set cors with create bucket operation" do
+    expect(AwsMock, :request, 2, fn
+      %{resource: ""} = operation, _ ->
+        assert %{http_method: :put, path: "/", bucket: "block-store-container"} = operation
+        {:ok, %{}}
+
+      operation, _ ->
+        assert %{
+                 body:
+                   "<CORSConfiguration><CORSRule><MaxAgeSeconds>3000</MaxAgeSeconds><AllowedOrigin>*</AllowedOrigin><AllowedMethod>GET</AllowedMethod><AllowedHeader>*</AllowedHeader></CORSRule></CORSConfiguration>",
+                 resource: "cors"
+               } = operation
+
+        {:ok, %{}}
+    end)
+
+    assert {:ok, %{}} == Container.create("block-store-container", %{cors_policy: true})
   end
 
   test "be able to list files and correctly convert them" do
@@ -27,7 +46,7 @@ defmodule FileStorageApi.API.S3.ContainerTest do
     end)
 
     assert {:ok,
-            %FileCachingService.Storage.Container{
+            %FileStorageApi.Container{
               date: nil,
               files: [
                 %FileStorageApi.File{name: "test.png", properties: %{key: "test.png", other: "waat"}}
@@ -35,7 +54,7 @@ defmodule FileStorageApi.API.S3.ContainerTest do
               max_results: 50,
               name: nil,
               next_marker: ""
-            }} == Container.list_files([])
+            }} == Container.list_files("block-store-container", [])
   end
 
   test "errors should be returned" do
@@ -44,6 +63,6 @@ defmodule FileStorageApi.API.S3.ContainerTest do
       {:error, %{status_code: 400}}
     end)
 
-    assert {:error, %{}} = Container.list_files([])
+    assert {:error, %{}} = Container.list_files("block-store-container", [])
   end
 end

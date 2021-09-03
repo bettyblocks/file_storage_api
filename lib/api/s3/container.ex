@@ -7,10 +7,20 @@ defmodule FileStorageApi.API.S3.Container do
   alias FileStorageApi.{Container, File}
 
   @impl true
-  def create(container_name) do
-    container_name
-    |> S3.put_bucket(region())
-    |> request()
+  def create(container_name, opts) do
+    result =
+      container_name
+      |> S3.put_bucket(region())
+      |> request()
+
+    case result do
+      {:ok, result} ->
+        put_cors(container_name, opts)
+        {:ok, result}
+
+      error ->
+        error
+    end
   end
 
   @impl true
@@ -31,4 +41,23 @@ defmodule FileStorageApi.API.S3.Container do
         error
     end
   end
+
+  defp put_cors(bucket, %{cors_policy: cors_policy}) when is_map(cors_policy) or cors_policy == true do
+    cors =
+      case cors_policy do
+        true ->
+          [
+            %{allowed_methods: ["GET"], allowed_origins: ["*"], allowed_headers: ["*"], max_age_seconds: 3000}
+          ]
+
+        %{} = cors_rules ->
+          cors_rules
+      end
+
+    bucket
+    |> S3.put_bucket_cors(cors)
+    |> request()
+  end
+
+  defp put_cors(bucket, _), do: bucket
 end
