@@ -42,7 +42,7 @@ defmodule FileStorageApi.API.S3.Container do
     end
   end
 
-  defp put_cors(bucket, %{cors_policy: cors_policy}) when is_map(cors_policy) or cors_policy == true do
+  defp put_cors(bucket, %{cors_policy: cors_policy}) when is_list(cors_policy) or cors_policy == true do
     cors =
       case cors_policy do
         true ->
@@ -50,7 +50,7 @@ defmodule FileStorageApi.API.S3.Container do
             %{allowed_methods: ["GET"], allowed_origins: ["*"], allowed_headers: ["*"], max_age_seconds: 3000}
           ]
 
-        %{} = cors_rules ->
+        cors_rules ->
           cors_rules
       end
 
