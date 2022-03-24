@@ -13,7 +13,7 @@ It can be added to your project by adding
 ```elixir
 def deps do
   [
-    {:file_storage_api, "~> 0.3"}
+    {:file_storage_api, "~> 1.0"}
   ]
 end
 ```
