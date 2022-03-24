@@ -3,8 +3,8 @@ defmodule FileStorageApi.API.Azure.BaseTest do
 
   alias FileStorageApi.API.Azure.Base
 
-  alias Azure.Storage
-  alias Azure.Storage.Container
+  alias ExMicrosoftAzureStorage.Storage
+  alias ExMicrosoftAzureStorage.Storage.Container
 
   test "module exists" do
     assert is_list(Base.module_info())

@@ -3,7 +3,7 @@ defmodule FileStorageApi.API.Azure.Container do
   @behaviour FileStorageApi.Container
 
   import FileStorageApi.API.Azure.Base
-  alias Azure.Storage.Container, as: AzureContainer
+  alias ExMicrosoftAzureStorage.Storage.Container, as: AzureContainer
   alias FileStorageApi.{Container, File}
 
   @impl true
