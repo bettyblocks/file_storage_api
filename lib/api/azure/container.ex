@@ -7,7 +7,7 @@ defmodule FileStorageApi.API.Azure.Container do
   alias FileStorageApi.{Container, File}
 
   @impl true
-  def create(container_name, _) do
+  def create(container_name, _opts \\ %{}) do
     AzureContainer.create_container(container(container_name))
   end
 

@@ -16,8 +16,8 @@ defmodule FileStorageApi.API.S3.File do
       {:ok, %{status_code: 200}} ->
         {:ok, object}
 
-      error ->
-        error
+      {:error, error} ->
+        handle_error(error)
     end
   end
 
@@ -44,4 +44,16 @@ defmodule FileStorageApi.API.S3.File do
   end
 
   def last_modified(_), do: {:error, :incorrect_format}
+
+  defp handle_error({_, _, %{status_code: 404, body: body}} = error) do
+    if String.contains?(body, "<Code>NoSuchBucket</Code>") do
+      {:error, :container_not_found}
+    else
+      {:error, error}
+    end
+  end
+
+  defp handle_error(error) do
+    {:error, error}
+  end
 end
