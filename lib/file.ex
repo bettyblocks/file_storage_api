@@ -4,7 +4,7 @@ defmodule FileStorageApi.File do
   """
 
   @type t :: %__MODULE__{name: String.t(), properties: map}
-  @callback upload(String.t(), String.t(), String.t()) :: {:ok, String.t()} | {:error, map | tuple}
+  @callback upload(String.t(), String.t(), String.t()) :: {:ok, String.t()} | {:file_upload_error, map | tuple}
   @callback delete(String.t(), String.t()) :: {:ok, map} | {:error, map}
   @callback public_url(String.t(), String.t(), DateTime.t(), DateTime.t()) :: {:ok, String.t()} | {:error, String.t()}
   @callback last_modified(t) :: {:ok, DateTime.t()} | {:error, atom}
@@ -22,10 +22,16 @@ defmodule FileStorageApi.File do
 
   Returns reference to the file in the asset store
   """
-  def upload(container_name, filename, blob_name) do
-    case api_module(File).upload(container_name, filename, blob_name) do
-      {:ok, file} -> {:ok, file}
-      {:error, error} -> {:file_upload_error, error}
+  def upload(container_name, filename, blob_name, opts \\ []) do
+    force_container = Keyword.get(opts, :force_container, true)
+
+    case {api_module(File).upload(container_name, filename, blob_name), force_container} do
+      {{:ok, file}, _} -> {:ok, file}
+      {{:error, :container_not_found}, true} ->
+        api_module(Container).create(container_name)
+        upload(container_name, filename, blob_name, Keyword.put(opts, :force_container, false))
+
+      {{:error, error}, _} -> {:file_upload_error, error}
     end
   end
 

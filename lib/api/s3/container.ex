@@ -7,7 +7,7 @@ defmodule FileStorageApi.API.S3.Container do
   alias FileStorageApi.{Container, File}
 
   @impl true
-  def create(container_name, opts) do
+  def create(container_name, opts \\ %{}) do
     result =
       container_name
       |> S3.put_bucket(region())

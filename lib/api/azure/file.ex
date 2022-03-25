@@ -11,6 +11,8 @@ defmodule FileStorageApi.API.Azure.File do
       {:ok, %{request_url: _request_url}} ->
         {:ok, blob_name || Path.basename(filename)}
 
+      {:error, %{error_code: "ContainerNotFound"}} ->
+        {:error, :container_not_found}
       error ->
         error
     end
