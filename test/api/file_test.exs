@@ -1,9 +1,9 @@
 defmodule FileStorageApi.FileTest do
   use ExUnit.Case
 
-  alias FileStorageApi.File
-  alias FileStorageApi.API.Mock.File, as: FileMock
   alias FileStorageApi.API.Mock.Container, as: ContainerMock
+  alias FileStorageApi.API.Mock.File, as: FileMock
+  alias FileStorageApi.File
 
   import Mox
 
