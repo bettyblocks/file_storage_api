@@ -21,7 +21,7 @@ end
 Configuration
 
 Ability to set storage engine currently `S3` and `Azure` supported. 
-For tests Mock can be used with the mox library.
+For tests `Mock` can be used with the mox library.
 ```elixir
 config :file_storage_api, :storage_api, engine: Azure
 ```
