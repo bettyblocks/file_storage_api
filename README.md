@@ -52,3 +52,5 @@ config :file_storage_api, :azure_blob,
   host: ,
   development: "true" || "false"
 ```
+
+It will need the package `file` in linux to be able to read mime types and work.
