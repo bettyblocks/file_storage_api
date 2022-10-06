@@ -26,12 +26,16 @@ defmodule FileStorageApi.File do
     force_container = Keyword.get(opts, :force_container, true)
 
     case {api_module(File).upload(container_name, filename, blob_name), force_container} do
-      {{:ok, file}, _} -> {:ok, file}
+      {{:ok, file}, _} ->
+        {:ok, file}
+
       {{:error, :container_not_found}, true} ->
-        api_module(Container).create(container_name, %{})
+        container_options = Keyword.take(opts, [:cors_policy, :public])
+        api_module(Container).create(container_name, Map.new(container_options))
         upload(container_name, filename, blob_name, Keyword.put(opts, :force_container, false))
 
-      {{:error, error}, _} -> {:file_upload_error, error}
+      {{:error, error}, _} ->
+        {:file_upload_error, error}
     end
   end
 
