@@ -66,17 +66,17 @@ defmodule FileStorageApi.File do
 
   def last_modified(file), do: api_module(File).last_modified(file)
 
-  @spec upload_file_from_content(binary, binary, binary | iodata, binary) ::
+  @spec upload_file_from_content(binary, binary, binary | iodata, binary, keyword) ::
           {:ok, String.t()} | {:file_upload_error, map | tuple}
   @doc """
   This function will create a temporary file and upload to asset store
   """
-  def upload_file_from_content(filename, container_name, content, blob_name) do
+  def upload_file_from_content(filename, container_name, content, blob_name, opts \\ []) do
     Temp.track!()
     {:ok, dir_path} = Temp.mkdir("file-cache")
     file_path = Path.join(dir_path, filename)
     File.write(file_path, content)
-    upload(container_name, file_path, blob_name)
+    upload(container_name, file_path, blob_name, opts)
   after
     Temp.cleanup()
   end
