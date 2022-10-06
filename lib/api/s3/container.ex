@@ -7,7 +7,7 @@ defmodule FileStorageApi.API.S3.Container do
   alias FileStorageApi.{Container, File}
 
   @impl true
-  def create(container_name, opts \\ %{}) do
+  def create(container_name, options \\ %{}) do
     result =
       container_name
       |> S3.put_bucket(region())
@@ -15,7 +15,8 @@ defmodule FileStorageApi.API.S3.Container do
 
     case result do
       {:ok, result} ->
-        put_cors(container_name, opts)
+        put_public_policy(container_name, options)
+        put_cors(container_name, options)
         {:ok, result}
 
       error ->
@@ -40,6 +41,32 @@ defmodule FileStorageApi.API.S3.Container do
       error ->
         error
     end
+  end
+
+  @spec put_public_policy(String.t(), map) :: :ok | {:ok, term} | {:error, term}
+  defp put_public_policy(bucket_name, %{public: true}) do
+    bucket_name
+    |> S3.put_bucket_policy(policy(bucket_name))
+    |> request()
+  end
+
+  defp put_public_policy(_, _), do: :ok
+
+  defp policy(bucket_name) do
+    Jason.encode!(%{
+      Version: "2012-10-17",
+      Statement: [
+        %{
+          Sid: "AddPerm",
+          Effect: "Allow",
+          Principal: "*",
+          Action: [
+            "s3:GetObject"
+          ],
+          Resource: "arn:aws:s3:::#{bucket_name}/*"
+        }
+      ]
+    })
   end
 
   defp put_cors(bucket, %{cors_policy: cors_policy}) when is_list(cors_policy) or cors_policy == true do
