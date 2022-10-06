@@ -19,9 +19,14 @@ defmodule FileStorageApi.File do
   filename: path to the file with the data to store
   blob_name: how the blob is going to be called after storage
 
+  Option field is available that has options for missing container fallback
+  force_container: with false you can disable auto creation of container
+  public: with public on true it will create bucket by default as public
+  cors_policy: can have true or a configuration for configuring cors settings of bucket
+
   Returns reference to the file in the asset store
   """
-  @spec upload(String.t(), String.t(), String.t()) :: {:ok, String.t()} | {:file_upload_error, map | tuple}
+  @spec upload(String.t(), String.t(), String.t(), keyword) :: {:ok, String.t()} | {:file_upload_error, map | tuple}
   def upload(container_name, filename, blob_name, opts \\ []) do
     force_container = Keyword.get(opts, :force_container, true)
 
@@ -68,6 +73,8 @@ defmodule FileStorageApi.File do
 
   @doc """
   This function will create a temporary file and upload to asset store
+
+  Opts field described at the upload function
   """
   @spec upload_file_from_content(binary, binary, binary | iodata, binary, keyword) ::
           {:ok, String.t()} | {:file_upload_error, map | tuple}
