@@ -13,7 +13,6 @@ defmodule FileStorageApi.File do
 
   import FileStorageApi.Base
 
-  @spec upload(String.t(), String.t(), String.t()) :: {:ok, String.t()} | {:file_upload_error, map | tuple}
   @doc """
   Function to upload file has input args
   container_name: name of the container
@@ -22,6 +21,7 @@ defmodule FileStorageApi.File do
 
   Returns reference to the file in the asset store
   """
+  @spec upload(String.t(), String.t(), String.t()) :: {:ok, String.t()} | {:file_upload_error, map | tuple}
   def upload(container_name, filename, blob_name, opts \\ []) do
     force_container = Keyword.get(opts, :force_container, true)
 
@@ -39,7 +39,6 @@ defmodule FileStorageApi.File do
     end
   end
 
-  @spec delete(String.t(), String.t()) :: {:ok, map} | {:error, map}
   @doc """
   Function to delete files
 
@@ -47,14 +46,15 @@ defmodule FileStorageApi.File do
   container_name: name of container file is stored in
   filename: reference path of the file stored in the container
   """
+  @spec delete(String.t(), String.t()) :: {:ok, map} | {:error, map}
   def delete(container_name, filename) do
     api_module(File).delete(container_name, filename)
   end
 
-  @spec public_url(String.t(), String.t(), DateTime.t(), DateTime.t()) :: {:ok, String.t()} | {:error, String.t()}
   @doc """
   public_url returns an full url to be able to fetch the file with security tokens needed by default 1 day valid
   """
+  @spec public_url(String.t(), String.t(), DateTime.t(), DateTime.t()) :: {:ok, String.t()} | {:error, String.t()}
   def public_url(
         container_name,
         file_path,
@@ -66,11 +66,11 @@ defmodule FileStorageApi.File do
 
   def last_modified(file), do: api_module(File).last_modified(file)
 
-  @spec upload_file_from_content(binary, binary, binary | iodata, binary, keyword) ::
-          {:ok, String.t()} | {:file_upload_error, map | tuple}
   @doc """
   This function will create a temporary file and upload to asset store
   """
+  @spec upload_file_from_content(binary, binary, binary | iodata, binary, keyword) ::
+          {:ok, String.t()} | {:file_upload_error, map | tuple}
   def upload_file_from_content(filename, container_name, content, blob_name, opts \\ []) do
     Temp.track!()
     {:ok, dir_path} = Temp.mkdir("file-cache")
