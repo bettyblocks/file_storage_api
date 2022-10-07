@@ -8,16 +8,19 @@ defmodule FileStorageApi.API.Azure.Container do
 
   @impl true
   def create(container_name, options \\ %{}) do
-    container_object = container(container_name)
+    container = container(container_name)
 
-    container =
-      if Map.get(options, :public) do
-        AzureContainer.set_container_acl_public_access_blob(container_object)
-      else
-        container_object
-      end
+    case AzureContainer.create_container(container) do
+      {:ok, result} ->
+        if Map.get(options, :public) do
+          AzureContainer.set_container_acl_public_access_blob(container)
+        end
 
-    AzureContainer.create_container(container)
+        {:ok, result}
+
+      error ->
+        error
+    end
   end
 
   @impl true
