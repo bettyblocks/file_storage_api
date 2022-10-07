@@ -56,6 +56,7 @@ defmodule FileStorageApi.MixProject do
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
       {:file_info, "~> 0.0.4"},
+      {:jason, "~> 1.4"},
       {:mox, "~> 1.0", only: :test},
       {:recase, "~> 0.5"},
       {:temp, "~> 0.4"}

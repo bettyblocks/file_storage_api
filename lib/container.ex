@@ -18,17 +18,16 @@ defmodule FileStorageApi.Container do
 
   import FileStorageApi.Base
 
-  @spec create(String.t()) :: any
   @doc """
   Will create container with binary as input for bucket name
 
   Opts allows for setting cors_policy as map or true will only be applied to S3
   """
+  @spec create(String.t(), map) :: any
   def create(container_name, opts \\ %{}) do
     api_module(Container).create(container_name, opts)
   end
 
-  @spec list_files(String.t(), options) :: Enumerable.t()
   @doc """
   List all files in the container.
 
@@ -36,6 +35,7 @@ defmodule FileStorageApi.Container do
 
   It's build around stream so will automatically use the markers to get as many items as are  in the bucket.
   """
+  @spec list_files(String.t(), options) :: Enumerable.t()
   def list_files(container_name, options \\ []) do
     filtered_options =
       if Keyword.has_key?(options, :max_results) do
