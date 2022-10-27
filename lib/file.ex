@@ -3,15 +3,22 @@ defmodule FileStorageApi.File do
   Module for uploading deleting and fetching url of file
   """
 
+  import FileStorageApi.Base
+
+  alias FileStorageApi.API.Azure.Container, as: AzureContainer
+  alias FileStorageApi.API.Azure.File, as: AzureFile
+  alias FileStorageApi.API.S3.Container, as: S3Container
+  alias FileStorageApi.API.S3.File, as: S3File
+
   @type t :: %__MODULE__{name: String.t(), properties: map}
-  @callback upload(String.t(), String.t(), String.t()) :: {:ok, String.t()} | {:file_upload_error, map | tuple}
-  @callback delete(String.t(), String.t()) :: {:ok, map} | {:error, map}
-  @callback public_url(String.t(), String.t(), DateTime.t(), DateTime.t()) :: {:ok, String.t()} | {:error, String.t()}
+  @callback upload(String.t(), atom, String.t(), String.t()) ::
+              {:ok, String.t()} | {:file_upload_error, map | tuple}
+  @callback delete(String.t(), String.t(), atom) :: {:ok, map} | {:error, map}
+  @callback public_url(String.t(), String.t(), DateTime.t(), DateTime.t(), atom) ::
+              {:ok, String.t()} | {:error, String.t()}
   @callback last_modified(t) :: {:ok, DateTime.t()} | {:error, atom}
 
   defstruct name: nil, properties: %{}
-
-  import FileStorageApi.Base
 
   @doc """
   Function to upload file has input args
@@ -26,17 +33,31 @@ defmodule FileStorageApi.File do
 
   Returns reference to the file in the asset store
   """
-  @spec upload(String.t(), String.t(), String.t(), keyword) :: {:ok, String.t()} | {:file_upload_error, map | tuple}
+  @spec upload(String.t(), String.t(), String.t(), keyword) ::
+          {:ok, String.t()} | {:file_upload_error, map | tuple}
   def upload(container_name, filename, blob_name, opts \\ []) do
     force_container = Keyword.get(opts, :force_container, true)
+    connection_name = Keyword.get(opts, :connection, :default)
 
-    case {api_module(File).upload(container_name, filename, blob_name), force_container} do
+    {module_container, module_file} =
+      case storage_engine(connection_name) do
+        :s3 ->
+          {S3Container, S3File}
+
+        :mock ->
+          {FileStorageApi.API.Mock.Container, FileStorageApi.API.Mock.File}
+
+        :azure ->
+          {AzureContainer, AzureFile}
+      end
+
+    case {module_file.upload(container_name, connection_name, filename, blob_name), force_container} do
       {{:ok, file}, _} ->
         {:ok, file}
 
       {{:error, :container_not_found}, true} ->
         container_options = Keyword.take(opts, [:cors_policy, :public])
-        api_module(Container).create(container_name, Map.new(container_options))
+        module_container.create(container_name, connection_name, Map.new(container_options))
         upload(container_name, filename, blob_name, Keyword.put(opts, :force_container, false))
 
       {{:error, error}, _} ->
@@ -51,25 +72,59 @@ defmodule FileStorageApi.File do
   container_name: name of container file is stored in
   filename: reference path of the file stored in the container
   """
-  @spec delete(String.t(), String.t()) :: {:ok, map} | {:error, map}
-  def delete(container_name, filename) do
-    api_module(File).delete(container_name, filename)
+  @spec delete(String.t(), String.t(), atom) :: {:ok, map} | {:error, map}
+  def delete(container_name, filename, connection_name \\ :default) do
+    module_file =
+      case storage_engine(connection_name) do
+        :s3 ->
+          S3File
+
+        :azure ->
+          AzureFile
+      end
+
+    module_file.delete(container_name, filename)
   end
 
   @doc """
   public_url returns an full url to be able to fetch the file with security tokens needed by default 1 day valid
   """
-  @spec public_url(String.t(), String.t(), DateTime.t(), DateTime.t()) :: {:ok, String.t()} | {:error, String.t()}
+  @spec public_url(String.t(), String.t(), DateTime.t(), DateTime.t(), atom) ::
+          {:ok, String.t()} | {:error, String.t()}
   def public_url(
         container_name,
         file_path,
         start_time \\ Timex.now(),
-        expire_time \\ Timex.add(Timex.now(), Timex.Duration.from_days(1))
+        expire_time \\ Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+        connection_name \\ :default
       ) do
-    api_module(File).public_url(container_name, file_path, start_time, expire_time)
+    module_file =
+      case storage_engine(connection_name) do
+        :s3 ->
+          S3File
+
+        :mock ->
+          FileStorageApi.API.Mock.File
+
+        :azure ->
+          AzureFile
+      end
+
+    module_file.public_url(container_name, file_path, start_time, expire_time, connection_name)
   end
 
-  def last_modified(file), do: api_module(File).last_modified(file)
+  def last_modified(file, connection_name \\ :default) do
+    module_file =
+      case storage_engine(connection_name) do
+        :s3 ->
+          S3File
+
+        :azure ->
+          AzureFile
+      end
+
+    module_file.last_modified(file, connection_name)
+  end
 
   @doc """
   This function will create a temporary file and upload to asset store

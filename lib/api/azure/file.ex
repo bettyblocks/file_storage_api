@@ -2,42 +2,46 @@ defmodule FileStorageApi.API.Azure.File do
   @moduledoc false
   @behaviour FileStorageApi.File
   import FileStorageApi.API.Azure.Base
+
   alias ExMicrosoftAzureStorage.Storage
-  alias ExMicrosoftAzureStorage.Storage.{ApiVersion, Blob, SharedAccessSignature}
+  alias ExMicrosoftAzureStorage.Storage.ApiVersion
+  alias ExMicrosoftAzureStorage.Storage.Blob
+  alias ExMicrosoftAzureStorage.Storage.SharedAccessSignature
 
   @impl true
-  def upload(container_name, filename, blob_name) do
-    case Blob.upload_file(container(container_name), filename, blob_name) do
+  def upload(container_name, connection_name, filename, blob_name) do
+    case Blob.upload_file(container(container_name, connection_name), filename, blob_name) do
       {:ok, %{request_url: _request_url}} ->
         {:ok, blob_name || Path.basename(filename)}
 
       {:error, %{error_code: "ContainerNotFound"}} ->
         {:error, :container_not_found}
+
       error ->
         error
     end
   end
 
   @impl true
-  def delete(container_name, filename) do
+  def delete(container_name, filename, connection_name) do
     container_name
-    |> container()
+    |> container(connection_name)
     |> Blob.new(filename)
     |> Blob.delete_blob()
   end
 
   @impl true
-  def public_url(container_name, "/" <> file_path, start_time, expire_time),
-    do: public_url(container_name, file_path, start_time, expire_time)
+  def public_url(container_name, "/" <> file_path, start_time, expire_time, connection_name),
+    do: public_url(container_name, file_path, start_time, expire_time, connection_name)
 
-  def public_url(container_name, file_path, start_time, expire_time) do
+  def public_url(container_name, file_path, start_time, expire_time, connection_name) do
     %{
       container_name: container_name,
       storage_context:
         %{
           account_name: account_name
         } = storage
-    } = container(container_name)
+    } = container(container_name, connection_name)
 
     signature =
       SharedAccessSignature.new()

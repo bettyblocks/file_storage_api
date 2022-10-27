@@ -3,6 +3,11 @@ defmodule FileStorageApi.Container do
   Module for handling asset containers
   """
 
+  import FileStorageApi.Base
+
+  alias FileStorageApi.API.Azure.Container, as: AzureContainer
+  alias FileStorageApi.API.S3.Container, as: S3Container
+
   @type t :: %__MODULE__{
           name: String.t(),
           files: [FileStorageApi.File.t()],
@@ -10,13 +15,11 @@ defmodule FileStorageApi.Container do
           next_marker: String.t(),
           date: DateTime.t()
         }
-  @callback create(String.t(), map) :: {:ok, map} | {:error, map}
+  @callback create(String.t(), atom, map) :: {:ok, map} | {:error, map}
   @type options :: [{:max_results, non_neg_integer} | {:marker, String.t()}]
-  @callback list_files(String.t(), options) :: {:ok, [__MODULE__.t()]} | {:error, map}
+  @callback list_files(String.t(), atom, options) :: {:ok, [__MODULE__.t()]} | {:error, map}
 
   defstruct name: nil, files: [], max_results: nil, next_marker: nil, date: nil
-
-  import FileStorageApi.Base
 
   @doc """
   Will create container with binary as input for bucket name
@@ -25,7 +28,26 @@ defmodule FileStorageApi.Container do
   """
   @spec create(String.t(), map) :: any
   def create(container_name, opts \\ %{}) do
-    api_module(Container).create(container_name, opts)
+    connection_name =
+      if Map.has_key?(opts, :container_name) do
+        opts[:container_name]
+      else
+        :default
+      end
+
+    module_container =
+      case storage_engine(connection_name) do
+        :s3 ->
+          S3Container
+
+        :mock ->
+          FileStorageApi.API.Mock.Container
+
+        :azure ->
+          AzureContainer
+      end
+
+    module_container.create(container_name, connection_name, opts)
   end
 
   @doc """
@@ -44,14 +66,29 @@ defmodule FileStorageApi.Container do
         []
       end
 
+    connection_name = Keyword.get(options, :connection_name, :default)
+
+    module_container =
+      case storage_engine(connection_name) do
+        :s3 ->
+          S3Container
+
+        :mock ->
+          FileStorageApi.API.Mock.Container
+
+        :azure ->
+          AzureContainer
+      end
+
     Stream.resource(
-      fn -> api_module(Container).list_files(container_name, options) end,
+      fn -> module_container.list_files(container_name, connection_name, options) end,
       fn
         {:ok, %{files: files, next_marker: ""}} ->
           {files, :eos}
 
         {:ok, %{files: files, next_marker: next_marker}} ->
-          {files, api_module(Container).list_files(container_name, [marker: next_marker] ++ filtered_options)}
+          {files,
+           module_container.list_files(container_name, connection_name, [marker: next_marker] ++ filtered_options)}
 
         :eos ->
           {:halt, :eos}
