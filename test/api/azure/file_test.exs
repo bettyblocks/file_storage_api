@@ -13,7 +13,8 @@ defmodule FileStorageApi.API.Azure.FileTest do
         "block-store-container",
         "test.png",
         Timex.now(),
-        Timex.add(Timex.now(), Timex.Duration.from_days(1))
+        Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+        :default
       )
 
     uri = URI.parse(url)
@@ -24,7 +25,7 @@ defmodule FileStorageApi.API.Azure.FileTest do
   test "timestamps should be correctly set in url" do
     start_time = Timex.now()
     expire_time = Timex.add(Timex.now(), Timex.Duration.from_hours(1))
-    {:ok, url} = File.public_url("block-store-container", "test.png", start_time, expire_time)
+    {:ok, url} = File.public_url("block-store-container", "test.png", start_time, expire_time, :default)
     uri = URI.parse(url)
 
     start_time_str = Timex.format!(start_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")

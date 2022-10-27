@@ -14,7 +14,7 @@ defmodule FileStorageApi.FileTest do
   end
 
   test "able to upload a file" do
-    expect(FileMock, :upload, fn "block-store-container", "testfile", _blob_name ->
+    expect(FileMock, :upload, fn "block-store-container", :default, "testfile", _blob_name ->
       {:ok, %{}}
     end)
 
@@ -23,24 +23,25 @@ defmodule FileStorageApi.FileTest do
 
   test "not creating a container if not forcing on a failed upload" do
     FileMock
-    |> expect(:upload, 1, fn "block-store-container", "testfile", _blob_name ->
+    |> expect(:upload, 1, fn "block-store-container", :default, "testfile", _blob_name ->
       {:error, "Some Error"}
     end)
 
-    assert {:file_upload_error, "Some Error"} == File.upload("block-store-container", "testfile", "testfile", force_container: false)
+    assert {:file_upload_error, "Some Error"} ==
+             File.upload("block-store-container", "testfile", "testfile", force_container: false)
   end
 
   test "creating a container once, if file upload fails because of it" do
     FileMock
-    |> expect(:upload, 1, fn "block-store-container", "testfile", _blob_name ->
+    |> expect(:upload, 1, fn "block-store-container", :default, "testfile", _blob_name ->
       {:error, :container_not_found}
     end)
-    |> expect(:upload, 1, fn "block-store-container", "testfile", _blob_name ->
+    |> expect(:upload, 1, fn "block-store-container", :default, "testfile", _blob_name ->
       {:ok, "file uploaded!"}
     end)
 
     ContainerMock
-    |> expect(:create, 1, fn "block-store-container", _ ->
+    |> expect(:create, 1, fn "block-store-container", :default, _ ->
       {:ok, %{}}
     end)
 
@@ -49,12 +50,12 @@ defmodule FileStorageApi.FileTest do
 
   test "returning the error if creating container didn't help" do
     FileMock
-    |> expect(:upload, 2, fn "block-store-container", "testfile", _blob_name ->
+    |> expect(:upload, 2, fn "block-store-container", :default, "testfile", _blob_name ->
       {:error, :container_not_found}
     end)
 
     ContainerMock
-    |> expect(:create, 1, fn "block-store-container", _ ->
+    |> expect(:create, 1, fn "block-store-container", :default, _ ->
       {:ok, %{}}
     end)
 
@@ -62,7 +63,7 @@ defmodule FileStorageApi.FileTest do
   end
 
   test "able to request public url without setting expire" do
-    expect(FileMock, :public_url, fn container_name, filename, start_time, expire_time ->
+    expect(FileMock, :public_url, fn container_name, filename, start_time, expire_time, :default ->
       start_time_str = Timex.format!(start_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
       expire_time_str = Timex.format!(expire_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
 
@@ -79,7 +80,7 @@ defmodule FileStorageApi.FileTest do
     start_time = Timex.now()
     expire_time = Timex.add(Timex.now(), Timex.Duration.from_hours(1))
 
-    expect(FileMock, :public_url, fn container_name, filename, start_time, expire_time ->
+    expect(FileMock, :public_url, fn container_name, filename, start_time, expire_time, :default ->
       start_time_str = Timex.format!(start_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
       expire_time_str = Timex.format!(expire_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
 

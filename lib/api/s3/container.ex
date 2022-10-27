@@ -3,20 +3,34 @@ defmodule FileStorageApi.API.S3.Container do
   @behaviour FileStorageApi.Container
 
   import FileStorageApi.API.S3.Base
+  import FileStorageApi.Base
+
   alias ExAws.S3
-  alias FileStorageApi.{Container, File}
+  alias FileStorageApi.Container
+  alias FileStorageApi.File
 
   @impl true
-  def create(container_name, options \\ %{}) do
+  def create(container_name, connection_name, options \\ %{}) do
     result =
       container_name
       |> S3.put_bucket(region())
-      |> request()
+      |> request(connection_name)
 
     case result do
       {:ok, result} ->
-        put_public_policy(container_name, options)
-        put_cors(container_name, options)
+        public = read_from_map(options, :public, false)
+        cors_policy = read_from_map(options, :cors_policy, false)
+
+        public &&
+          container_name
+          |> put_public_policy()
+          |> request(connection_name)
+
+        (is_list(cors_policy) || cors_policy == true) &&
+          container_name
+          |> put_cors(cors_policy)
+          |> request(connection_name)
+
         {:ok, result}
 
       error ->
@@ -25,10 +39,10 @@ defmodule FileStorageApi.API.S3.Container do
   end
 
   @impl true
-  def list_files(container_name, options) do
+  def list_files(container_name, connection_name, options) do
     container_name
     |> S3.list_objects(convert_options(options))
-    |> request()
+    |> request(connection_name)
     |> case do
       {:ok, %{body: %{contents: files, max_keys: max_results, next_marker: next_marker}}} ->
         {:ok,
@@ -43,14 +57,11 @@ defmodule FileStorageApi.API.S3.Container do
     end
   end
 
-  @spec put_public_policy(String.t(), map) :: :ok | {:ok, term} | {:error, term}
-  defp put_public_policy(bucket_name, %{public: true}) do
+  @spec put_public_policy(String.t()) :: ExAws.Operation.t()
+  defp put_public_policy(bucket_name) do
     bucket_name
     |> S3.put_bucket_policy(policy(bucket_name))
-    |> request()
   end
-
-  defp put_public_policy(_, _), do: :ok
 
   defp policy(bucket_name) do
     Jason.encode!(%{
@@ -69,12 +80,17 @@ defmodule FileStorageApi.API.S3.Container do
     })
   end
 
-  defp put_cors(bucket, %{cors_policy: cors_policy}) when is_list(cors_policy) or cors_policy == true do
+  defp put_cors(bucket, cors_policy) do
     cors =
       case cors_policy do
         true ->
           [
-            %{allowed_methods: ["GET"], allowed_origins: ["*"], allowed_headers: ["*"], max_age_seconds: 3000}
+            %{
+              allowed_methods: ["GET"],
+              allowed_origins: ["*"],
+              allowed_headers: ["*"],
+              max_age_seconds: 3000
+            }
           ]
 
         cors_rules ->
@@ -83,8 +99,5 @@ defmodule FileStorageApi.API.S3.Container do
 
     bucket
     |> S3.put_bucket_cors(cors)
-    |> request()
   end
-
-  defp put_cors(bucket, _), do: bucket
 end

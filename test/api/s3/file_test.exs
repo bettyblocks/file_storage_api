@@ -17,7 +17,8 @@ defmodule FileStorageApi.API.S3.FileTest do
         "block-store-container",
         "test.png",
         Timex.now(),
-        Timex.add(Timex.now(), Timex.Duration.from_days(1))
+        Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+        :default
       )
 
     uri = URI.parse(url)
@@ -31,7 +32,8 @@ defmodule FileStorageApi.API.S3.FileTest do
         "block-store-container",
         "/test.png",
         Timex.now(),
-        Timex.add(Timex.now(), Timex.Duration.from_days(1))
+        Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+        :default
       )
 
     uri = URI.parse(url)
@@ -42,7 +44,7 @@ defmodule FileStorageApi.API.S3.FileTest do
   test "timestamps should be correctly set in url" do
     start_time = Timex.now()
     expire_time = Timex.add(Timex.now(), Timex.Duration.from_hours(1))
-    {:ok, url} = File.public_url("block-store-container", "test.png", start_time, expire_time)
+    {:ok, url} = File.public_url("block-store-container", "test.png", start_time, expire_time, :default)
     uri = URI.parse(url)
 
     %{"X-Amz-Expires" => "3600"} = URI.decode_query(uri.query)
@@ -56,7 +58,7 @@ defmodule FileStorageApi.API.S3.FileTest do
       {:ok, %{}}
     end)
 
-    assert {:ok, %{}} == File.delete("block-store-container", path)
+    assert {:ok, %{}} == File.delete("block-store-container", path, :default)
   end
 
   test "upload a file with mime type" do
@@ -67,7 +69,7 @@ defmodule FileStorageApi.API.S3.FileTest do
       {:ok, %{status_code: 200}}
     end)
 
-    assert {:ok, Path.basename(file_path)} == File.upload("block-store-container", file_path, nil)
+    assert {:ok, Path.basename(file_path)} == File.upload("block-store-container", :default, file_path, nil)
   end
 
   test "failing upload should return error tuple" do
@@ -78,11 +80,14 @@ defmodule FileStorageApi.API.S3.FileTest do
       {:error, %{status_code: 400}}
     end)
 
-    assert {:error, %{}} = File.upload("block-store-container", file_path, nil)
+    assert {:error, %{}} = File.upload("block-store-container", :default, file_path, nil)
   end
 
   test "should be able to correctly convert modified at" do
-    file = %FileStorageApi.File{name: "test.png", properties: %{key: "test.png", other: "waat", last_modified: "2021-08-19T15:17:22.775Z"}}
+    file = %FileStorageApi.File{
+      name: "test.png",
+      properties: %{key: "test.png", other: "waat", last_modified: "2021-08-19T15:17:22.775Z"}
+    }
 
     assert {:ok, ~U[2021-08-19 15:17:22.775Z]} == File.last_modified(file)
   end

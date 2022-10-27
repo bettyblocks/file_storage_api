@@ -19,7 +19,7 @@ defmodule FileStorageApi.API.Azure.BaseTest do
              account_name: "account_name",
              account_key: Keyword.fetch!(azure_blob, :account_key),
              endpoint_suffix: "env_suffix"
-           } == Base.storage()
+           } == Base.storage(:default)
   end
 
   test "fetching correct storage config as development" do
@@ -37,14 +37,14 @@ defmodule FileStorageApi.API.Azure.BaseTest do
              host: "127.0.0.1",
              is_development_factory: true,
              default_endpoints_protocol: "http"
-           } == Base.storage()
+           } == Base.storage(:default)
   end
 
   test "able to create a container context" do
     assert %Container{
              container_name: "block-store-container",
-             storage_context: Base.storage()
-           } == Base.container("block-store-container")
+             storage_context: Base.storage(:default)
+           } == Base.container("block-store-container", :default)
   end
 
   test "convert option key name to be compatible with library" do

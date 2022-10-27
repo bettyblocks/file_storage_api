@@ -17,7 +17,7 @@ defmodule FileStorageApi.API.S3.ContainerTest do
       {:ok, %{}}
     end)
 
-    assert {:ok, %{}} == Container.create("block-store-container", %{})
+    assert {:ok, %{}} == Container.create("block-store-container", :default, %{})
   end
 
   test "able to set cors with create bucket operation" do
@@ -36,7 +36,7 @@ defmodule FileStorageApi.API.S3.ContainerTest do
         {:ok, %{}}
     end)
 
-    assert {:ok, %{}} == Container.create("block-store-container", %{cors_policy: true})
+    assert {:ok, %{}} == Container.create("block-store-container", :default, %{cors_policy: true})
   end
 
   test "able to set public policy with create bucket operation" do
@@ -55,7 +55,7 @@ defmodule FileStorageApi.API.S3.ContainerTest do
         {:ok, %{}}
     end)
 
-    assert {:ok, %{}} == Container.create("block-store-container", %{public: true})
+    assert {:ok, %{}} == Container.create("block-store-container", :default, %{public: true})
   end
 
   test "be able to list files and correctly convert them" do
@@ -73,7 +73,7 @@ defmodule FileStorageApi.API.S3.ContainerTest do
               max_results: 50,
               name: nil,
               next_marker: ""
-            }} == Container.list_files("block-store-container", [])
+            }} == Container.list_files("block-store-container", :default, [])
   end
 
   test "errors should be returned" do
@@ -82,6 +82,6 @@ defmodule FileStorageApi.API.S3.ContainerTest do
       {:error, %{status_code: 400}}
     end)
 
-    assert {:error, %{}} = Container.list_files("block-store-container", [])
+    assert {:error, %{}} = Container.list_files("block-store-container", :default, [])
   end
 end
