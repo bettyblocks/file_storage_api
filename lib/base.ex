@@ -9,18 +9,19 @@ defmodule FileStorageApi.Base do
     |> convert_storage_setting()
   end
 
-  def storage_engine(container_name) do
-    engine_key = String.to_existing_atom(container_name <> "_conn")
+  def storage_engine(connection_name) do
+    engine_key = String.to_existing_atom("#{connection_name}_conn")
 
-    engine_key
-    |> Application.get_env(:storage_api)
+    :file_storage_api
+    |> Application.get_env(engine_key)
     |> Keyword.get(:engine)
     |> convert_storage_setting()
   end
 
-  defp convert_storage_setting("s3"), do: :s3
-  defp convert_storage_setting("S3"), do: :s3
-  defp convert_storage_setting(S3), do: :s3
+  defp convert_storage_setting(engine) when engine in [:s3, "s3", "S3"] do
+    :s3
+  end
+
   defp convert_storage_setting(Mock), do: :mock
   defp convert_storage_setting(_), do: :azure
 end
