@@ -17,31 +17,18 @@ defmodule FileStorageApi.API.S3.Container do
 
     case result do
       {:ok, result} ->
-        public =
-          if Map.has_key?(options, :public) do
-            options[:public]
-          else
-            false
-          end
+        public = read_from_map(options, :public, false)
+        cors_policy = read_from_map(options, :cors_policy, false)
 
-        cors_policy =
-          if Map.has_key?(options, :cors_policy) do
-            options[:cors_policy]
-          else
-            false
-          end
-
-        if public do
+        public &&
           container_name
           |> put_public_policy()
           |> request(connection_name)
-        end
 
-        if is_list(cors_policy) || cors_policy == true do
+        (is_list(cors_policy) || cors_policy == true) &&
           container_name
           |> put_cors(cors_policy)
           |> request(connection_name)
-        end
 
         {:ok, result}
 
@@ -111,5 +98,14 @@ defmodule FileStorageApi.API.S3.Container do
 
     bucket
     |> S3.put_bucket_cors(cors)
+  end
+
+  @spec read_from_map(map, atom, any) :: any
+  defp read_from_map(options, key, fallback_value) do
+    if Map.has_key?(options, key) do
+      options[key]
+    else
+      fallback_value
+    end
   end
 end
