@@ -3,6 +3,7 @@ defmodule FileStorageApi.API.S3.Container do
   @behaviour FileStorageApi.Container
 
   import FileStorageApi.API.S3.Base
+  import FileStorageApi.Base
 
   alias ExAws.S3
   alias FileStorageApi.Container
@@ -98,14 +99,5 @@ defmodule FileStorageApi.API.S3.Container do
 
     bucket
     |> S3.put_bucket_cors(cors)
-  end
-
-  @spec read_from_map(map, atom, any) :: any
-  defp read_from_map(options, key, fallback_value) do
-    if Map.has_key?(options, key) do
-      options[key]
-    else
-      fallback_value
-    end
   end
 end

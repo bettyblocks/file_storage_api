@@ -5,11 +5,6 @@ defmodule FileStorageApi.File do
 
   import FileStorageApi.Base
 
-  alias FileStorageApi.API.Azure.Container, as: AzureContainer
-  alias FileStorageApi.API.Azure.File, as: AzureFile
-  alias FileStorageApi.API.S3.Container, as: S3Container
-  alias FileStorageApi.API.S3.File, as: S3File
-
   @type t :: %__MODULE__{name: String.t(), properties: map}
   @callback upload(String.t(), atom, String.t(), String.t()) ::
               {:ok, String.t()} | {:file_upload_error, map | tuple}
@@ -39,25 +34,14 @@ defmodule FileStorageApi.File do
     force_container = Keyword.get(opts, :force_container, true)
     connection_name = Keyword.get(opts, :connection, :default)
 
-    {module_container, module_file} =
-      case storage_engine(connection_name) do
-        :s3 ->
-          {S3Container, S3File}
-
-        :mock ->
-          {FileStorageApi.API.Mock.Container, FileStorageApi.API.Mock.File}
-
-        :azure ->
-          {AzureContainer, AzureFile}
-      end
-
-    case {module_file.upload(container_name, connection_name, filename, blob_name), force_container} do
+    case {api_module(connection_name, File).upload(container_name, connection_name, filename, blob_name),
+          force_container} do
       {{:ok, file}, _} ->
         {:ok, file}
 
       {{:error, :container_not_found}, true} ->
         container_options = Keyword.take(opts, [:cors_policy, :public])
-        module_container.create(container_name, connection_name, Map.new(container_options))
+        api_module(connection_name, Container).create(container_name, connection_name, Map.new(container_options))
         upload(container_name, filename, blob_name, Keyword.put(opts, :force_container, false))
 
       {{:error, error}, _} ->
@@ -74,16 +58,7 @@ defmodule FileStorageApi.File do
   """
   @spec delete(String.t(), String.t(), atom) :: {:ok, map} | {:error, map}
   def delete(container_name, filename, connection_name \\ :default) do
-    module_file =
-      case storage_engine(connection_name) do
-        :s3 ->
-          S3File
-
-        :azure ->
-          AzureFile
-      end
-
-    module_file.delete(container_name, filename)
+    api_module(connection_name, Container).delete(container_name, filename)
   end
 
   @doc """
@@ -98,32 +73,11 @@ defmodule FileStorageApi.File do
         expire_time \\ Timex.add(Timex.now(), Timex.Duration.from_days(1)),
         connection_name \\ :default
       ) do
-    module_file =
-      case storage_engine(connection_name) do
-        :s3 ->
-          S3File
-
-        :mock ->
-          FileStorageApi.API.Mock.File
-
-        :azure ->
-          AzureFile
-      end
-
-    module_file.public_url(container_name, file_path, start_time, expire_time, connection_name)
+    api_module(connection_name, File).public_url(container_name, file_path, start_time, expire_time, connection_name)
   end
 
   def last_modified(file, connection_name \\ :default) do
-    module_file =
-      case storage_engine(connection_name) do
-        :s3 ->
-          S3File
-
-        :azure ->
-          AzureFile
-      end
-
-    module_file.last_modified(file, connection_name)
+    api_module(connection_name, File).last_modified(file, connection_name)
   end
 
   @doc """

@@ -5,9 +5,6 @@ defmodule FileStorageApi.Container do
 
   import FileStorageApi.Base
 
-  alias FileStorageApi.API.Azure.Container, as: AzureContainer
-  alias FileStorageApi.API.S3.Container, as: S3Container
-
   @type t :: %__MODULE__{
           name: String.t(),
           files: [FileStorageApi.File.t()],
@@ -28,26 +25,9 @@ defmodule FileStorageApi.Container do
   """
   @spec create(String.t(), map) :: any
   def create(container_name, opts \\ %{}) do
-    connection_name =
-      if Map.has_key?(opts, :container_name) do
-        opts[:container_name]
-      else
-        :default
-      end
+    connection_name = read_from_map(opts, :container_name, :default)
 
-    module_container =
-      case storage_engine(connection_name) do
-        :s3 ->
-          S3Container
-
-        :mock ->
-          FileStorageApi.API.Mock.Container
-
-        :azure ->
-          AzureContainer
-      end
-
-    module_container.create(container_name, connection_name, opts)
+    api_module(connection_name, Container).create(container_name, connection_name, opts)
   end
 
   @doc """
@@ -68,27 +48,19 @@ defmodule FileStorageApi.Container do
 
     connection_name = Keyword.get(options, :connection_name, :default)
 
-    module_container =
-      case storage_engine(connection_name) do
-        :s3 ->
-          S3Container
-
-        :mock ->
-          FileStorageApi.API.Mock.Container
-
-        :azure ->
-          AzureContainer
-      end
-
     Stream.resource(
-      fn -> module_container.list_files(container_name, connection_name, options) end,
+      fn -> api_module(connection_name, Container).list_files(container_name, connection_name, options) end,
       fn
         {:ok, %{files: files, next_marker: ""}} ->
           {files, :eos}
 
         {:ok, %{files: files, next_marker: next_marker}} ->
           {files,
-           module_container.list_files(container_name, connection_name, [marker: next_marker] ++ filtered_options)}
+           api_module(connection_name, Container).list_files(
+             container_name,
+             connection_name,
+             [marker: next_marker] ++ filtered_options
+           )}
 
         :eos ->
           {:halt, :eos}
