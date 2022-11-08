@@ -9,7 +9,7 @@ defmodule FileStorageApi.API.S3.File do
 
   @impl true
   def upload(container_name, connection_name, filename, blob_name) do
-    [{_, file_mime_type}] = filename |> FileInfo.get_info() |> Map.to_list()
+    file_mime_type = mime_type(filename)
     object = blob_name || Path.basename(filename)
 
     container_name
@@ -29,6 +29,23 @@ defmodule FileStorageApi.API.S3.File do
     bucket
     |> S3.delete_object(Path.basename(filename))
     |> request(connection_name)
+  end
+
+  defp mime_type(filename) do
+    case System.shell("which mimetype") do
+      {_location, 0} ->
+        {result, 0} = System.shell("mimetype #{filename}")
+
+        result
+        |> String.trim()
+        |> String.split(" ")
+        |> Enum.reverse()
+        |> hd()
+
+      {_empty, 1} ->
+        [{_, file_mime_type}] = filename |> FileInfo.get_info() |> Map.to_list()
+        file_mime_type
+    end
   end
 
   @impl true

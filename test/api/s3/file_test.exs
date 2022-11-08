@@ -72,6 +72,17 @@ defmodule FileStorageApi.API.S3.FileTest do
     assert {:ok, Path.basename(file_path)} == File.upload("block-store-container", :default, file_path, nil)
   end
 
+  test "upload a file with mime type application/javascript (requires mimetype to be installed)" do
+    file_path = "./test/support/hello.js"
+
+    expect(AwsMock, :request, fn operation, _config ->
+      assert %{http_method: :put, path: "hello.js", headers: %{"content-type" => "application/javascript"}} = operation
+      {:ok, %{status_code: 200}}
+    end)
+
+    assert {:ok, Path.basename(file_path)} == File.upload("block-store-container", :default, file_path, nil)
+  end
+
   test "failing upload should return error tuple" do
     file_path = "./test/support/test_icon.png"
 
