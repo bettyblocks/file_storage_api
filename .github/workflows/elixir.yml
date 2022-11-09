@@ -25,7 +25,11 @@ jobs:
         path: deps
         key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
         restore-keys: ${{ runner.os }}-mix-
-    - name: Install dependencies
+    - name: Install OS dependencies
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: apt install libfile-mimeinfo-perl shared-mime-info
+    - name: Install Elixir dependencies
       run: mix deps.get
     - name: Run tests
       run: mix test
