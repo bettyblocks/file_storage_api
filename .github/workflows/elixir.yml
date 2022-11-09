@@ -28,7 +28,7 @@ jobs:
     - name: Install OS dependencies
       env:
         DEBIAN_FRONTEND: noninteractive
-      run: apt install libfile-mimeinfo-perl shared-mime-info
+      run: sudo apt install libfile-mimeinfo-perl shared-mime-info
     - name: Install Elixir dependencies
       run: mix deps.get
     - name: Run tests
