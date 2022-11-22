@@ -1,16 +1,27 @@
 defmodule FileStorageApi.API.Azure.File do
   @moduledoc false
-  @behaviour FileStorageApi.File
+
   import FileStorageApi.API.Azure.Base
+
+  @behaviour FileStorageApi.File
 
   alias ExMicrosoftAzureStorage.Storage
   alias ExMicrosoftAzureStorage.Storage.ApiVersion
   alias ExMicrosoftAzureStorage.Storage.Blob
+  alias ExMicrosoftAzureStorage.Storage.BlobProperties
   alias ExMicrosoftAzureStorage.Storage.SharedAccessSignature
+  alias FileStorageApi.File, as: BaseFile
 
   @impl true
   def upload(container_name, connection_name, filename, blob_name) do
-    case Blob.upload_file(container(container_name, connection_name), filename, blob_name) do
+    case Blob.upload_file(
+           container(container_name, connection_name),
+           filename,
+           blob_name,
+           %BlobProperties{
+             content_type: BaseFile.mime_type(filename)
+           }
+         ) do
       {:ok, %{request_url: _request_url}} ->
         {:ok, blob_name || Path.basename(filename)}
 

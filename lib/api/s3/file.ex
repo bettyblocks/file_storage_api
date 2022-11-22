@@ -6,14 +6,15 @@ defmodule FileStorageApi.API.S3.File do
   @behaviour FileStorageApi.File
 
   alias ExAws.S3
+  alias FileStorageApi.File, as: BaseFile
 
   @impl true
   def upload(container_name, connection_name, filename, blob_name) do
-    file_mime_type = mime_type(filename)
+    file_mime_type = BaseFile.mime_type(filename)
     object = blob_name || Path.basename(filename)
 
     container_name
-    |> S3.put_object(object, File.read!(filename), content_type: to_string(file_mime_type))
+    |> S3.put_object(object, File.read!(filename), content_type: file_mime_type)
     |> request(connection_name)
     |> case do
       {:ok, %{status_code: 200}} ->
@@ -29,23 +30,6 @@ defmodule FileStorageApi.API.S3.File do
     bucket
     |> S3.delete_object(Path.basename(filename))
     |> request(connection_name)
-  end
-
-  defp mime_type(filename) do
-    case System.shell("which mimetype") do
-      {_location, 0} ->
-        {result, 0} = System.shell("mimetype #{filename}")
-
-        result
-        |> String.trim()
-        |> String.split(" ")
-        |> Enum.reverse()
-        |> hd()
-
-      {_empty, 1} ->
-        [{_, file_mime_type}] = filename |> FileInfo.get_info() |> Map.to_list()
-        file_mime_type
-    end
   end
 
   @impl true
