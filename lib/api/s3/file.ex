@@ -32,23 +32,6 @@ defmodule FileStorageApi.API.S3.File do
     |> request(connection_name)
   end
 
-  defp mime_type(filename) do
-    case System.shell("which mimetype") do
-      {_location, 0} ->
-        {result, 0} = System.shell("mimetype #{filename}")
-
-        result
-        |> String.trim()
-        |> String.split(" ")
-        |> Enum.reverse()
-        |> hd()
-
-      {_empty, 1} ->
-        [{_, file_mime_type}] = filename |> FileInfo.get_info() |> Map.to_list()
-        file_mime_type
-    end
-  end
-
   @impl true
   def public_url(container_name, "/" <> file_path, start_time, expire_time, connection_name),
     do: public_url(container_name, file_path, start_time, expire_time, connection_name)
