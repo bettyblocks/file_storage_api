@@ -105,4 +105,21 @@ defmodule FileStorageApi.File do
     |> String.replace(~r/[^0-9a-z\-]/u, "")
     |> String.trim("-")
   end
+
+  def mime_type(filename) do
+    case System.shell("which mimetype") do
+      {_location, 0} ->
+        {result, 0} = System.shell("mimetype #{filename}")
+
+        result
+        |> String.trim()
+        |> String.split(" ")
+        |> Enum.reverse()
+        |> hd()
+
+      {_empty, 1} ->
+        [{_, file_mime_type}] = filename |> FileInfo.get_info() |> Map.to_list()
+        to_string(file_mime_type)
+    end
+  end
 end
