@@ -8,7 +8,6 @@ defmodule FileStorageApi.API.Azure.File do
   alias ExMicrosoftAzureStorage.Storage
   alias ExMicrosoftAzureStorage.Storage.ApiVersion
   alias ExMicrosoftAzureStorage.Storage.Blob
-  alias ExMicrosoftAzureStorage.Storage.BlobProperties
   alias ExMicrosoftAzureStorage.Storage.SharedAccessSignature
   alias FileStorageApi.File, as: BaseFile
 
@@ -18,9 +17,7 @@ defmodule FileStorageApi.API.Azure.File do
            container(container_name, connection_name),
            filename,
            blob_name,
-           %BlobProperties{
-             content_type: BaseFile.mime_type(filename)
-           }
+           %{content_type: BaseFile.mime_type(filename)}
          ) do
       {:ok, %{request_url: _request_url}} ->
         {:ok, blob_name || Path.basename(filename)}
