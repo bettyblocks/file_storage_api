@@ -58,7 +58,7 @@ defmodule FileStorageApi.File do
   """
   @spec delete(String.t(), String.t(), atom) :: {:ok, map} | {:error, map}
   def delete(container_name, filename, connection_name \\ :default) do
-    api_module(connection_name, Container).delete(container_name, filename, connection_name)
+    api_module(connection_name, File).delete(container_name, filename, connection_name)
   end
 
   @doc """
