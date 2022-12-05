@@ -11,7 +11,7 @@ defmodule FileStorageApi.File do
   @callback delete(String.t(), String.t(), atom) :: {:ok, map} | {:error, map}
   @callback public_url(String.t(), String.t(), DateTime.t(), DateTime.t(), atom) ::
               {:ok, String.t()} | {:error, String.t()}
-  @callback last_modified(t, atom) :: {:ok, DateTime.t()} | {:error, atom}
+  @callback last_modified(t) :: {:ok, DateTime.t()} | {:error, atom}
 
   defstruct name: nil, properties: %{}
 
@@ -77,7 +77,7 @@ defmodule FileStorageApi.File do
   end
 
   def last_modified(file, connection_name \\ :default) do
-    api_module(connection_name, File).last_modified(file, connection_name)
+    api_module(connection_name, File).last_modified(file)
   end
 
   @doc """
