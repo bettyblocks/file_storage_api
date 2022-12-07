@@ -76,7 +76,7 @@ defmodule FileStorageApi.API.S3.FileTest do
     file_path = "./test/support/hello.js"
 
     expect(AwsMock, :request, fn operation, _config ->
-      assert %{http_method: :put, path: "hello.js", headers: %{"content-type" => "application/javascript"}} = operation
+      assert %{http_method: :put, path: "hello.js", headers: %{"content-type" => "text/javascript"}} = operation
       {:ok, %{status_code: 200}}
     end)
 

@@ -107,19 +107,18 @@ defmodule FileStorageApi.File do
   end
 
   def mime_type(filename) do
-    case System.shell("which mimetype") do
-      {_location, 0} ->
-        {result, 0} = System.shell("mimetype #{filename}")
+    filename
+    |> FileInfo.get_info()
+    |> Map.to_list()
+    |> List.first()
+    |> elem(1)
+    |> to_string()
+    |> case do
+      "text/" <> _ ->
+        MIME.from_path(filename)
 
-        result
-        |> String.trim()
-        |> String.split(" ")
-        |> Enum.reverse()
-        |> hd()
-
-      {_empty, 1} ->
-        [{_, file_mime_type}] = filename |> FileInfo.get_info() |> Map.to_list()
-        to_string(file_mime_type)
+      mime_type ->
+        mime_type
     end
   end
 end

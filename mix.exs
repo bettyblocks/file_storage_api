@@ -4,7 +4,7 @@ defmodule FileStorageApi.MixProject do
   def project do
     [
       app: :file_storage_api,
-      version: "1.3.7",
+      version: "1.3.8",
       elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       elixirc_options: [warnings_as_errors: Mix.env() != :test],
@@ -57,6 +57,7 @@ defmodule FileStorageApi.MixProject do
       {:excoveralls, "~> 0.10", only: :test},
       {:file_info, "~> 0.0.4"},
       {:jason, "~> 1.4"},
+      {:mime, "~> 2.0"},
       {:mox, "~> 1.0", only: :test},
       {:recase, "~> 0.5"},
       {:temp, "~> 0.4"}
