@@ -6,7 +6,7 @@ defmodule FileStorageApi.File do
   import FileStorageApi.Base
 
   @type t :: %__MODULE__{name: String.t(), properties: map}
-  @callback upload(String.t(), atom, String.t(), String.t()) ::
+  @callback upload(String.t(), atom, String.t(), String.t(), Keyword.t()) ::
               {:ok, String.t()} | {:file_upload_error, map | tuple}
   @callback delete(String.t(), String.t(), atom) :: {:ok, map} | {:error, map}
   @callback public_url(String.t(), String.t(), DateTime.t(), DateTime.t(), atom) ::
@@ -33,9 +33,16 @@ defmodule FileStorageApi.File do
   def upload(container_name, filename, blob_name, opts \\ []) do
     force_container = Keyword.get(opts, :force_container, true)
     connection_name = Keyword.get(opts, :connection, :default)
+    file_mime_type = mime_type(filename)
+    upload_options = Keyword.take(opts, [:cache_control])
 
-    case {api_module(connection_name, File).upload(container_name, connection_name, filename, blob_name),
-          force_container} do
+    case {api_module(connection_name, File).upload(
+            container_name,
+            connection_name,
+            filename,
+            blob_name,
+            Keyword.merge(upload_options, content_type: file_mime_type)
+          ), force_container} do
       {{:ok, file}, _} ->
         {:ok, file}
 
@@ -106,7 +113,7 @@ defmodule FileStorageApi.File do
     |> String.trim("-")
   end
 
-  def mime_type(filename) do
+  defp mime_type(filename) do
     filename
     |> FileInfo.get_info()
     |> Map.to_list()

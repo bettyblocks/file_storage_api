@@ -6,15 +6,13 @@ defmodule FileStorageApi.API.S3.File do
   @behaviour FileStorageApi.File
 
   alias ExAws.S3
-  alias FileStorageApi.File, as: BaseFile
 
   @impl true
-  def upload(container_name, connection_name, filename, blob_name) do
-    file_mime_type = BaseFile.mime_type(filename)
+  def upload(container_name, connection_name, filename, blob_name, opts) do
     object = blob_name || Path.basename(filename)
 
     container_name
-    |> S3.put_object(object, File.read!(filename), content_type: file_mime_type)
+    |> S3.put_object(object, File.read!(filename), opts)
     |> request(connection_name)
     |> case do
       {:ok, %{status_code: 200}} ->

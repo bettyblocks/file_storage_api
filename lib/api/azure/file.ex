@@ -9,15 +9,14 @@ defmodule FileStorageApi.API.Azure.File do
   alias ExMicrosoftAzureStorage.Storage.ApiVersion
   alias ExMicrosoftAzureStorage.Storage.Blob
   alias ExMicrosoftAzureStorage.Storage.SharedAccessSignature
-  alias FileStorageApi.File, as: BaseFile
 
   @impl true
-  def upload(container_name, connection_name, filename, blob_name) do
+  def upload(container_name, connection_name, filename, blob_name, opts) do
     case Blob.upload_file(
            container(container_name, connection_name),
            filename,
            blob_name,
-           %{content_type: BaseFile.mime_type(filename)}
+           Enum.into(opts, %{})
          ) do
       {:ok, %{request_url: _request_url}} ->
         {:ok, blob_name || Path.basename(filename)}
