@@ -31,7 +31,7 @@ defmodule FileStorageApi.Base do
     |> convert_to_module()
   end
 
-  defp convert_to_module(engine) when engine in [:s3, "s3", "S3"] do
+  defp convert_to_module(engine) when engine in [:s3, "s3", "S3", S3] do
     S3
   end
 

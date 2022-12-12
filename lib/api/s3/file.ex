@@ -5,16 +5,15 @@ defmodule FileStorageApi.API.S3.File do
 
   @behaviour FileStorageApi.File
 
+  alias ExAws.Config
   alias ExAws.S3
-  alias FileStorageApi.File, as: BaseFile
 
   @impl true
-  def upload(container_name, connection_name, filename, blob_name) do
-    file_mime_type = BaseFile.mime_type(filename)
+  def upload(container_name, connection_name, filename, blob_name, opts \\ []) do
     object = blob_name || Path.basename(filename)
 
     container_name
-    |> S3.put_object(object, File.read!(filename), content_type: file_mime_type)
+    |> S3.put_object(object, File.read!(filename), opts)
     |> request(connection_name)
     |> case do
       {:ok, %{status_code: 200}} ->
@@ -39,7 +38,7 @@ defmodule FileStorageApi.API.S3.File do
   def public_url(container_name, file_path, start_time, expire_time, connection_name) do
     expires_in = Timex.Comparable.diff(expire_time, start_time, :seconds)
 
-    S3.presigned_url(config(connection_name), :get, container_name, file_path, expires_in: expires_in)
+    S3.presigned_url(Config.new(:s3, config(connection_name)), :get, container_name, file_path, expires_in: expires_in)
   end
 
   @impl true

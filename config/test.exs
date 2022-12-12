@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :file_storage_api, :storage_api, engine: Mock
 

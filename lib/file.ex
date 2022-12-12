@@ -6,7 +6,7 @@ defmodule FileStorageApi.File do
   import FileStorageApi.Base
 
   @type t :: %__MODULE__{name: String.t(), properties: map}
-  @callback upload(String.t(), atom, String.t(), String.t()) ::
+  @callback upload(String.t(), atom, String.t(), String.t(), Keyword.t()) ::
               {:ok, String.t()} | {:file_upload_error, map | tuple}
   @callback delete(String.t(), String.t(), atom) :: {:ok, map} | {:error, map}
   @callback public_url(String.t(), String.t(), DateTime.t(), DateTime.t(), atom) ::
@@ -29,16 +29,23 @@ defmodule FileStorageApi.File do
   Returns reference to the file in the asset store
   """
   @spec upload(String.t(), String.t(), String.t(), keyword) ::
-          {:ok, String.t()} | {:file_upload_error, map | tuple}
+          {:ok, String.t()} | {:file_upload_error, map | tuple} | {:error, :invalid_file}
   def upload(container_name, filename, blob_name, opts \\ []) do
     force_container = Keyword.get(opts, :force_container, true)
     connection_name = Keyword.get(opts, :connection, :default)
+    upload_options = Keyword.take(opts, [:cache_control])
 
-    case {api_module(connection_name, File).upload(container_name, connection_name, filename, blob_name),
-          force_container} do
-      {{:ok, file}, _} ->
-        {:ok, file}
-
+    with {:ok, file_mime_type} <- mime_type(filename),
+         {{:ok, file}, _} <-
+           {api_module(connection_name, File).upload(
+              container_name,
+              connection_name,
+              filename,
+              blob_name,
+              Keyword.merge(upload_options, content_type: file_mime_type)
+            ), force_container} do
+      {:ok, file}
+    else
       {{:error, :container_not_found}, true} ->
         container_options = Keyword.take(opts, [:cors_policy, :public])
         api_module(connection_name, Container).create(container_name, connection_name, Map.new(container_options))
@@ -46,6 +53,9 @@ defmodule FileStorageApi.File do
 
       {{:error, error}, _} ->
         {:file_upload_error, error}
+
+      error ->
+        error
     end
   end
 
@@ -106,19 +116,23 @@ defmodule FileStorageApi.File do
     |> String.trim("-")
   end
 
-  def mime_type(filename) do
-    filename
-    |> FileInfo.get_info()
-    |> Map.to_list()
-    |> List.first()
-    |> elem(1)
-    |> to_string()
-    |> case do
-      "text/" <> _ ->
-        MIME.from_path(filename)
+  defp mime_type(filename) do
+    if File.exists?(filename) do
+      filename
+      |> FileInfo.get_info()
+      |> Map.to_list()
+      |> List.first()
+      |> elem(1)
+      |> to_string()
+      |> case do
+        "text/" <> _ ->
+          {:ok, MIME.from_path(filename)}
 
-      mime_type ->
-        mime_type
+        mime_type ->
+          {:ok, mime_type}
+      end
+    else
+      {:error, :invalid_file}
     end
   end
 end

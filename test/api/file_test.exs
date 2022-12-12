@@ -14,29 +14,56 @@ defmodule FileStorageApi.FileTest do
   end
 
   test "able to upload a file" do
-    expect(FileMock, :upload, fn "block-store-container", :default, "testfile", _blob_name ->
+    file_path = "./test/support/test_icon.png"
+
+    expect(FileMock, :upload, fn "block-store-container", :default, ^file_path, _blob_name, _ ->
       {:ok, %{}}
     end)
 
-    assert {:ok, %{}} == File.upload("block-store-container", "testfile", "testfile")
+    assert {:ok, %{}} == File.upload("block-store-container", file_path, "testfile")
+  end
+
+  test "upload a file with mime type" do
+    file_path = "./test/support/test_icon.png"
+
+    expect(FileMock, :upload, fn "block-store-container", :default, _, filename, [content_type: "image/png"] ->
+      {:ok, filename}
+    end)
+
+    assert {:ok, Path.basename(file_path)} ==
+             File.upload("block-store-container", file_path, "test_icon.png")
+  end
+
+  test "upload a file with mime type application/javascript" do
+    file_path = "./test/support/hello.js"
+
+    expect(FileMock, :upload, fn "block-store-container", :default, _, filename, [content_type: "text/javascript"] ->
+      {:ok, filename}
+    end)
+
+    assert {:ok, Path.basename(file_path)} == File.upload("block-store-container", file_path, "hello.js")
   end
 
   test "not creating a container if not forcing on a failed upload" do
+    file_path = "./test/support/hello.js"
+
     FileMock
-    |> expect(:upload, 1, fn "block-store-container", :default, "testfile", _blob_name ->
+    |> expect(:upload, 1, fn "block-store-container", :default, _file_path, "testfile", _ ->
       {:error, "Some Error"}
     end)
 
     assert {:file_upload_error, "Some Error"} ==
-             File.upload("block-store-container", "testfile", "testfile", force_container: false)
+             File.upload("block-store-container", file_path, "testfile", force_container: false)
   end
 
   test "creating a container once, if file upload fails because of it" do
+    file_path = "./test/support/hello.js"
+
     FileMock
-    |> expect(:upload, 1, fn "block-store-container", :default, "testfile", _blob_name ->
+    |> expect(:upload, 1, fn "block-store-container", :default, ^file_path, _blob_name, _ ->
       {:error, :container_not_found}
     end)
-    |> expect(:upload, 1, fn "block-store-container", :default, "testfile", _blob_name ->
+    |> expect(:upload, 1, fn "block-store-container", :default, ^file_path, _blob_name, _ ->
       {:ok, "file uploaded!"}
     end)
 
@@ -45,12 +72,14 @@ defmodule FileStorageApi.FileTest do
       {:ok, %{}}
     end)
 
-    assert {:ok, "file uploaded!"} == File.upload("block-store-container", "testfile", "testfile")
+    assert {:ok, "file uploaded!"} == File.upload("block-store-container", file_path, "testfile")
   end
 
   test "returning the error if creating container didn't help" do
+    file_path = "./test/support/hello.js"
+
     FileMock
-    |> expect(:upload, 2, fn "block-store-container", :default, "testfile", _blob_name ->
+    |> expect(:upload, 2, fn "block-store-container", :default, ^file_path, _blob_name, _ ->
       {:error, :container_not_found}
     end)
 
@@ -59,7 +88,7 @@ defmodule FileStorageApi.FileTest do
       {:ok, %{}}
     end)
 
-    assert {:file_upload_error, :container_not_found} == File.upload("block-store-container", "testfile", "testfile")
+    assert {:file_upload_error, :container_not_found} == File.upload("block-store-container", file_path, "testfile")
   end
 
   test "able to request public url without setting expire" do
