@@ -11,7 +11,7 @@ defmodule FileStorageApi.API.Azure.File do
   alias ExMicrosoftAzureStorage.Storage.SharedAccessSignature
 
   @impl true
-  def upload(container_name, connection_name, filename, blob_name, opts) do
+  def upload(container_name, connection_name, filename, blob_name, opts \\ []) do
     case Blob.upload_file(
            container(container_name, connection_name),
            filename,

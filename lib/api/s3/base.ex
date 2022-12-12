@@ -1,11 +1,9 @@
 defmodule FileStorageApi.API.S3.Base do
   @moduledoc false
 
-  alias ExAws.Config
-
   @ex_aws_module Application.compile_env(:file_storage_api, [:s3_config, :module], ExAws)
 
-  @spec config(atom) :: Config.t()
+  @spec config(atom) :: Keyword.t()
   def config(connection_name) do
     storage_api = Application.get_env(:file_storage_api, :storage_api)
 
@@ -24,12 +22,11 @@ defmodule FileStorageApi.API.S3.Base do
           Application.get_env(:file_storage_api, String.to_existing_atom("#{name}_s3_config"))
       end
 
-    build_config_struct(http_opts, s3_config)
+    build_config_keyword_list(http_opts, s3_config)
   end
 
-  defp build_config_struct(http_opts, s3_config) do
-    Config.new(
-      :s3,
+  defp build_config_keyword_list(http_opts, s3_config) do
+    [
       access_key_id: Keyword.get(s3_config, :access_key_id),
       secret_access_key: Keyword.get(s3_config, :secret_access_key),
       s3_auth_version: Keyword.get(s3_config, :s3_auth_version),
@@ -38,7 +35,7 @@ defmodule FileStorageApi.API.S3.Base do
       port: Keyword.get(s3_config, :port),
       region: region(s3_config),
       http_opts: http_opts
-    )
+    ]
   end
 
   @spec region(keyword) :: String.t()
