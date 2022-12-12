@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :file_storage_api, :azure_blob,
   account_name: "account_name",
