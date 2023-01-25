@@ -128,6 +128,9 @@ defmodule FileStorageApi.File do
         "text/" <> _ ->
           {:ok, MIME.from_path(filename)}
 
+        "application/octet-stream" ->
+          {:ok, MIME.from_path(filename)}
+
         mime_type ->
           {:ok, mime_type}
       end
