@@ -13,7 +13,7 @@ defmodule FileStorageApi.API.S3.Container do
   def create(container_name, connection_name, options \\ %{}) do
     result =
       container_name
-      |> S3.put_bucket(region())
+      |> S3.put_bucket(region(config(connection_name)))
       |> request(connection_name)
 
     case result do
