@@ -79,15 +79,19 @@ defmodule FileStorageApi.File do
   def public_url(
         container_name,
         file_path,
-        opts \\ [
-          start_time: Timex.now(),
-          expire_time: Timex.add(Timex.now(), Timex.Duration.from_days(1)),
-          connection_name: :default,
-          public: false
-        ]
+        opts
       ) do
-    connection_name = Keyword.get(opts, :connection_name)
-    api_module(connection_name, File).public_url(container_name, file_path, opts)
+    connection_name = Keyword.get(opts, :connection_name, :default)
+    start_time = Keyword.get(opts, :start_time, Timex.now())
+    expire_time = Keyword.get(opts, :expire_time, Timex.add(Timex.now(), Timex.Duration.from_days(1)))
+    public = Keyword.get(opts, :public, false)
+
+    api_module(connection_name, File).public_url(container_name, file_path,
+      container_name: connection_name,
+      start_time: start_time,
+      expire_time: expire_time,
+      public: public
+    )
   end
 
   def last_modified(file, connection_name \\ :default) do
