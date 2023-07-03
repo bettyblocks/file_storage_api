@@ -13,13 +13,6 @@ defmodule FileStorageApi.File do
               {:ok, String.t()} | {:error, String.t()}
   @callback last_modified(t) :: {:ok, DateTime.t()} | {:error, atom}
 
-  @default_public_url_opts [
-    start_time: Timex.now(),
-    expire_time: Timex.add(Timex.now(), Timex.Duration.from_days(1)),
-    connection_name: :default,
-    public: false
-  ]
-
   defstruct name: nil, properties: %{}
 
   @doc """
@@ -88,11 +81,20 @@ defmodule FileStorageApi.File do
         file_path,
         opts
       ) do
-    api_module(connection_name, File).public_url(
-      container_name,
-      file_path,
-      Keyword.merge(@default_public_url_opts, opts)
-    )
+    options =
+      Keyword.merge(
+        [
+          start_time: Timex.now(),
+          expire_time: Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+          connection_name: :default,
+          public: false
+        ],
+        opts
+      )
+
+    connection_name = Keyword.get(options, :connection_name)
+
+    api_module(connection_name, File).public_url(container_name, file_path, options)
   end
 
   def last_modified(file, connection_name \\ :default) do
