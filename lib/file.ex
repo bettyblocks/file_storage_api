@@ -9,7 +9,7 @@ defmodule FileStorageApi.File do
   @callback upload(String.t(), atom, String.t(), String.t(), Keyword.t()) ::
               {:ok, String.t()} | {:file_upload_error, map | tuple}
   @callback delete(String.t(), String.t(), atom) :: {:ok, map} | {:error, map}
-  @callback public_url(String.t(), String.t(), DateTime.t(), DateTime.t(), atom) ::
+  @callback public_url(String.t(), String.t(), keyword) ::
               {:ok, String.t()} | {:error, String.t()}
   @callback last_modified(t) :: {:ok, DateTime.t()} | {:error, atom}
 
@@ -74,16 +74,20 @@ defmodule FileStorageApi.File do
   @doc """
   public_url returns an full url to be able to fetch the file with security tokens needed by default 1 day valid
   """
-  @spec public_url(String.t(), String.t(), DateTime.t(), DateTime.t(), atom) ::
+  @spec public_url(String.t(), String.t(), keyword) ::
           {:ok, String.t()} | {:error, String.t()}
   def public_url(
         container_name,
         file_path,
-        start_time \\ Timex.now(),
-        expire_time \\ Timex.add(Timex.now(), Timex.Duration.from_days(1)),
-        connection_name \\ :default
+        opts \\ [
+          start_time: Timex.now(),
+          expire_time: Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+          connection_name: :default,
+          public: false
+        ]
       ) do
-    api_module(connection_name, File).public_url(container_name, file_path, start_time, expire_time, connection_name)
+    connection_name = Keyword.get(opts, :connection_name)
+    api_module(connection_name, File).public_url(container_name, file_path, opts)
   end
 
   def last_modified(file, connection_name \\ :default) do

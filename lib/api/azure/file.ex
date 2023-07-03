@@ -38,10 +38,15 @@ defmodule FileStorageApi.API.Azure.File do
   end
 
   @impl true
-  def public_url(container_name, "/" <> file_path, start_time, expire_time, connection_name),
-    do: public_url(container_name, file_path, start_time, expire_time, connection_name)
+  def public_url(container_name, "/" <> file_path, opts),
+    do: public_url(container_name, file_path, opts)
 
-  def public_url(container_name, file_path, start_time, expire_time, connection_name) do
+  def public_url(container_name, file_path, opts) do
+    is_public = Keyword.get(opts, :public, false)
+    connection_name = Keyword.get(opts, :connection_name)
+    start_time = Keyword.get(opts, :start_time)
+    expire_time = Keyword.get(opts, :expire_time)
+
     %{
       container_name: container_name,
       storage_context:
@@ -50,19 +55,23 @@ defmodule FileStorageApi.API.Azure.File do
         } = storage
     } = container(container_name, connection_name)
 
-    signature =
-      SharedAccessSignature.new()
-      |> SharedAccessSignature.service_version(ApiVersion.get_api_version(:storage))
-      |> SharedAccessSignature.for_blob_service()
-      |> SharedAccessSignature.add_permission_read()
-      |> SharedAccessSignature.start_time(start_time)
-      |> SharedAccessSignature.expiry_time(expire_time)
-      |> SharedAccessSignature.protocol(storage_protocol(storage))
-      |> SharedAccessSignature.add_resource_blob_blob()
-      |> SharedAccessSignature.add_canonicalized_resource("/blob/#{account_name}/#{container_name}/#{file_path}")
-      |> SharedAccessSignature.sign(storage)
+    if is_public do
+      {:ok, "#{Storage.endpoint_url(storage, :blob_service)}/#{container_name}/#{file_path}"}
+    else
+      signature =
+        SharedAccessSignature.new()
+        |> SharedAccessSignature.service_version(ApiVersion.get_api_version(:storage))
+        |> SharedAccessSignature.for_blob_service()
+        |> SharedAccessSignature.add_permission_read()
+        |> SharedAccessSignature.start_time(start_time)
+        |> SharedAccessSignature.expiry_time(expire_time)
+        |> SharedAccessSignature.protocol(storage_protocol(storage))
+        |> SharedAccessSignature.add_resource_blob_blob()
+        |> SharedAccessSignature.add_canonicalized_resource("/blob/#{account_name}/#{container_name}/#{file_path}")
+        |> SharedAccessSignature.sign(storage)
 
-    {:ok, "#{Storage.endpoint_url(storage, :blob_service)}/#{container_name}/#{file_path}?#{signature}"}
+      {:ok, "#{Storage.endpoint_url(storage, :blob_service)}/#{container_name}/#{file_path}?#{signature}"}
+    end
   end
 
   @impl true

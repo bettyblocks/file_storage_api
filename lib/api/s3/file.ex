@@ -32,13 +32,22 @@ defmodule FileStorageApi.API.S3.File do
   end
 
   @impl true
-  def public_url(container_name, "/" <> file_path, start_time, expire_time, connection_name),
-    do: public_url(container_name, file_path, start_time, expire_time, connection_name)
+  def public_url(container_name, "/" <> file_path, opts), do: public_url(container_name, file_path, opts)
 
-  def public_url(container_name, file_path, start_time, expire_time, connection_name) do
-    expires_in = Timex.Comparable.diff(expire_time, start_time, :seconds)
+  def public_url(container_name, file_path, opts) do
+    is_public = Keyword.get(opts, :public, false)
+    connection_name = Keyword.get(opts, :connection_name)
+    start_time = Keyword.get(opts, :start_time)
+    expire_time = Keyword.get(opts, :expire_time)
 
-    S3.presigned_url(Config.new(:s3, config(connection_name)), :get, container_name, file_path, expires_in: expires_in)
+    if is_public do
+      uri = URI.parse(S3.presigned_url(Config.new(:s3, config(connection_name)), :get, container_name, file_path))
+      URI.to_string(%{uri | query: nil})
+    else
+      expires_in = Timex.Comparable.diff(expire_time, start_time, :seconds)
+
+      S3.presigned_url(Config.new(:s3, config(connection_name)), :get, container_name, file_path, expires_in: expires_in)
+    end
   end
 
   @impl true

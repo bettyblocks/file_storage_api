@@ -4,7 +4,7 @@ defmodule FileStorageApi.MixProject do
   def project do
     [
       app: :file_storage_api,
-      version: "1.4.2",
+      version: "2.0.0",
       elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       elixirc_options: [warnings_as_errors: Mix.env() != :test],
