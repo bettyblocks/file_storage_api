@@ -48,7 +48,13 @@ defmodule FileStorageApi.API.S3.File do
     case s3_signed do
       {:ok, url} ->
         if is_public do
-          {:ok, URI.to_string(%{uri | query: nil})}
+          public_url =
+            url
+            |> URI.parse()
+            |> Map.put(:query, nil)
+            |> URI.to_string()
+
+          {:ok, public_url}
         else
           url
         end
