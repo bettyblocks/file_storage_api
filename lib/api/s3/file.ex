@@ -40,13 +40,21 @@ defmodule FileStorageApi.API.S3.File do
     start_time = Keyword.get(opts, :start_time)
     expire_time = Keyword.get(opts, :expire_time)
 
-    if is_public do
-      uri = URI.parse(S3.presigned_url(Config.new(:s3, config(connection_name)), :get, container_name, file_path))
-      URI.to_string(%{uri | query: nil})
-    else
-      expires_in = Timex.Comparable.diff(expire_time, start_time, :seconds)
+    expires_in = Timex.Comparable.diff(expire_time, start_time, :seconds)
 
+    s3_signed =
       S3.presigned_url(Config.new(:s3, config(connection_name)), :get, container_name, file_path, expires_in: expires_in)
+
+    case s3_signed do
+      {:ok, url} ->
+        if is_public do
+          {:ok, URI.to_string(%{uri | query: nil})}
+        else
+          url
+        end
+
+      error ->
+        error
     end
   end
 
