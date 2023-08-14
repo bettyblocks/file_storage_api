@@ -27,7 +27,7 @@ defmodule FileStorageApi.API.S3.File do
   @impl true
   def delete(bucket, filename, connection_name) do
     bucket
-    |> S3.delete_object(Path.basename(filename))
+    |> S3.delete_object(filename)
     |> request(connection_name)
   end
 
