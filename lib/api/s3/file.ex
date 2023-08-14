@@ -56,7 +56,7 @@ defmodule FileStorageApi.API.S3.File do
 
           {:ok, public_url}
         else
-          url
+          {:ok, url}
         end
 
       error ->

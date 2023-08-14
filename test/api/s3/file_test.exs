@@ -16,9 +16,9 @@ defmodule FileStorageApi.API.S3.FileTest do
       File.public_url(
         "block-store-container",
         "test.png",
-        Timex.now(),
-        Timex.add(Timex.now(), Timex.Duration.from_days(1)),
-        :default
+        start_time: Timex.now(),
+        expire_time: Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+        connection_name: :default
       )
 
     uri = URI.parse(url)
@@ -31,9 +31,9 @@ defmodule FileStorageApi.API.S3.FileTest do
       File.public_url(
         "block-store-container",
         "/test.png",
-        Timex.now(),
-        Timex.add(Timex.now(), Timex.Duration.from_days(1)),
-        :default
+        start_time: Timex.now(),
+        expire_time: Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+        connection_name: :default
       )
 
     uri = URI.parse(url)
@@ -44,7 +44,14 @@ defmodule FileStorageApi.API.S3.FileTest do
   test "timestamps should be correctly set in url" do
     start_time = Timex.now()
     expire_time = Timex.add(Timex.now(), Timex.Duration.from_hours(1))
-    {:ok, url} = File.public_url("block-store-container", "test.png", start_time, expire_time, :default)
+
+    {:ok, url} =
+      File.public_url("block-store-container", "test.png",
+        start_time: start_time,
+        expire_time: expire_time,
+        connection_name: :default
+      )
+
     uri = URI.parse(url)
 
     %{"X-Amz-Expires" => "3600"} = URI.decode_query(uri.query)
@@ -54,7 +61,7 @@ defmodule FileStorageApi.API.S3.FileTest do
     path = "awesome/test.png"
 
     expect(AwsMock, :request, fn operation, _config ->
-      assert %{http_method: :delete, path: "test.png"} = operation
+      assert %{http_method: :delete, path: ^path} = operation
       {:ok, %{}}
     end)
 

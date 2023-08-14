@@ -92,7 +92,10 @@ defmodule FileStorageApi.FileTest do
   end
 
   test "able to request public url without setting expire" do
-    expect(FileMock, :public_url, fn container_name, filename, start_time, expire_time, :default ->
+    expect(FileMock, :public_url, fn container_name, filename, opts ->
+      start_time = Keyword.get(opts, :start_time)
+      expire_time = Keyword.get(opts, :expire_time)
+
       start_time_str = Timex.format!(start_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
       expire_time_str = Timex.format!(expire_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
 
@@ -100,7 +103,7 @@ defmodule FileStorageApi.FileTest do
     end)
 
     assert String.starts_with?(
-             File.public_url("test-container", "test.png"),
+             File.public_url("test-container", "test.png", []),
              "http://test.test/test-container/test.png"
            )
   end
@@ -109,7 +112,10 @@ defmodule FileStorageApi.FileTest do
     start_time = Timex.now()
     expire_time = Timex.add(Timex.now(), Timex.Duration.from_hours(1))
 
-    expect(FileMock, :public_url, fn container_name, filename, start_time, expire_time, :default ->
+    expect(FileMock, :public_url, fn container_name, filename, opts ->
+      start_time = Keyword.get(opts, :start_time)
+      expire_time = Keyword.get(opts, :expire_time)
+
       start_time_str = Timex.format!(start_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
       expire_time_str = Timex.format!(expire_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
 
@@ -120,6 +126,6 @@ defmodule FileStorageApi.FileTest do
     expire_time_str = Timex.format!(expire_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
 
     assert "http://test.test/test-container/test.png?st=#{start_time_str}&et=#{expire_time_str}" ==
-             File.public_url("test-container", "test.png", start_time, expire_time)
+             File.public_url("test-container", "test.png", start_time: start_time, expire_time: expire_time)
   end
 end
