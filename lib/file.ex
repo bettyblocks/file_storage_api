@@ -6,9 +6,9 @@ defmodule FileStorageApi.File do
   import FileStorageApi.Base
 
   @type t :: %__MODULE__{name: String.t(), properties: map}
-  @callback upload(String.t(), atom, String.t(), String.t(), Keyword.t()) ::
+  @callback upload(String.t(), atom | map, String.t(), String.t(), Keyword.t()) ::
               {:ok, String.t()} | {:file_upload_error, map | tuple}
-  @callback delete(String.t(), String.t(), atom) :: {:ok, map} | {:error, map}
+  @callback delete(String.t(), String.t(), atom | map) :: {:ok, map} | {:error, map}
   @callback public_url(String.t(), String.t(), keyword) ::
               {:ok, String.t()} | {:error, String.t()}
   @callback last_modified(t) :: {:ok, DateTime.t()} | {:error, atom}
@@ -32,14 +32,14 @@ defmodule FileStorageApi.File do
           {:ok, String.t()} | {:file_upload_error, map | tuple} | {:error, :invalid_file}
   def upload(container_name, filename, blob_name, opts \\ []) do
     force_container = Keyword.get(opts, :force_container, true)
-    connection_name = Keyword.get(opts, :connection, :default)
+    connection = Keyword.get(opts, :connection, :default)
     upload_options = Keyword.take(opts, [:cache_control])
 
     with {:ok, file_mime_type} <- mime_type(filename),
          {{:ok, file}, _} <-
-           {api_module(connection_name, File).upload(
+           {api_module(connection, File).upload(
               container_name,
-              connection_name,
+              connection,
               filename,
               blob_name,
               Keyword.merge(upload_options, content_type: file_mime_type)
@@ -48,7 +48,7 @@ defmodule FileStorageApi.File do
     else
       {{:error, :container_not_found}, true} ->
         container_options = Keyword.take(opts, [:cors_policy, :public])
-        api_module(connection_name, Container).create(container_name, connection_name, Map.new(container_options))
+        api_module(connection, Container).create(container_name, connection, Map.new(container_options))
         upload(container_name, filename, blob_name, Keyword.put(opts, :force_container, false))
 
       {{:error, error}, _} ->
@@ -67,8 +67,8 @@ defmodule FileStorageApi.File do
   filename: reference path of the file stored in the container
   """
   @spec delete(String.t(), String.t(), atom) :: {:ok, map} | {:error, map}
-  def delete(container_name, filename, connection_name \\ :default) do
-    api_module(connection_name, File).delete(container_name, filename, connection_name)
+  def delete(container_name, filename, connection \\ :default) do
+    api_module(connection, File).delete(container_name, filename, connection)
   end
 
   @doc """
@@ -86,19 +86,19 @@ defmodule FileStorageApi.File do
         [
           start_time: Timex.now(),
           expire_time: Timex.add(Timex.now(), Timex.Duration.from_days(1)),
-          connection_name: :default,
+          connection: :default,
           public: false
         ],
         opts
       )
 
-    connection_name = Keyword.get(options, :connection_name)
+    connection = Keyword.get(options, :connection)
 
-    api_module(connection_name, File).public_url(container_name, file_path, options)
+    api_module(connection, File).public_url(container_name, file_path, options)
   end
 
-  def last_modified(file, connection_name \\ :default) do
-    api_module(connection_name, File).last_modified(file)
+  def last_modified(file, connection \\ :default) do
+    api_module(connection, File).last_modified(file)
   end
 
   @doc """

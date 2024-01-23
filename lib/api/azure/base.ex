@@ -4,9 +4,9 @@ defmodule FileStorageApi.API.Azure.Base do
   alias ExMicrosoftAzureStorage.Storage
   alias ExMicrosoftAzureStorage.Storage.Container
 
-  def storage(connection_name) do
+  def storage(connection) when is_atom(connection) do
     azure_blob =
-      case connection_name do
+      case connection do
         :default ->
           Application.get_env(:file_storage_api, :azure_blob)
 
@@ -25,8 +25,22 @@ defmodule FileStorageApi.API.Azure.Base do
     end
   end
 
-  def container(container_name, connection_name) do
-    Container.new(storage(connection_name), container_name)
+  def storage(connection) do
+    config = Map.get(connection, :config, [])
+
+    if Map.get(config, :development) do
+      Storage.development_factory(Map.get(config, :host, "127.0.0.1"))
+    else
+      %Storage{
+        account_name: Map.get(config, :access_key),
+        account_key: Map.get(config, :secret_key),
+        endpoint_suffix: Map.get(config, :host)
+      }
+    end
+  end
+
+  def container(container_name, connection) do
+    Container.new(storage(connection), container_name)
   end
 
   @spec convert_options(FileStorageApi.Container.options()) :: [

@@ -10,11 +10,11 @@ defmodule FileStorageApi.API.S3.Container do
   alias FileStorageApi.File
 
   @impl true
-  def create(container_name, connection_name, options \\ %{}) do
+  def create(container_name, connection, options \\ %{}) do
     result =
       container_name
-      |> S3.put_bucket(region(config(connection_name)))
-      |> request(connection_name)
+      |> S3.put_bucket(region(config(connection)))
+      |> request(connection)
 
     case result do
       {:ok, result} ->
@@ -24,12 +24,12 @@ defmodule FileStorageApi.API.S3.Container do
         public &&
           container_name
           |> put_public_policy()
-          |> request(connection_name)
+          |> request(connection)
 
         (is_list(cors_policy) || cors_policy == true) &&
           container_name
           |> put_cors(cors_policy)
-          |> request(connection_name)
+          |> request(connection)
 
         {:ok, result}
 
@@ -39,10 +39,10 @@ defmodule FileStorageApi.API.S3.Container do
   end
 
   @impl true
-  def list_files(container_name, connection_name, options) do
+  def list_files(container_name, connection, options) do
     container_name
     |> S3.list_objects(convert_options(options))
-    |> request(connection_name)
+    |> request(connection)
     |> case do
       {:ok, %{body: %{contents: files, max_keys: max_results, next_marker: next_marker}}} ->
         {:ok,

@@ -55,6 +55,32 @@ config :file_storage_api, :azure_blob,
 
 It will need the package `file` in linux to be able to read mime types and work.
 
+## Dynamic configuration
+
+You can use a map to pass a long dynamic configuration in the connection field.
+
+For azure
+```elixir
+%{
+  engine: :azure,
+  config: %{
+    host: "postfix.docker",
+    secret_key: "YWNjb3VudF9rZXk=",
+    access_key: "amazing"
+  }
+}
+```
+
+For S3
+```elixir
+%{
+  engine: :s3,
+  config: %{host: "test.docker", secret_key: "test123", access_key: "amazing", scheme: "http://"}
+}
+```
+
+For mocking you can set the engine to Mock
+
 ## Multiple storage accounts
 
 It can be necessary to connect to multiple S3- or Azure-accounts. This can be done by adding multiple connections, each with its own engine. To facilitate testing, it is possible to change the engine per connection.

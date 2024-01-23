@@ -9,8 +9,8 @@ defmodule FileStorageApi.API.Azure.Container do
   alias FileStorageApi.File
 
   @impl true
-  def create(container_name, connection_name, options \\ %{}) do
-    container = container(container_name, connection_name)
+  def create(container_name, connection, options \\ %{}) do
+    container = container(container_name, connection)
 
     case AzureContainer.create_container(container) do
       {:ok, result} ->
@@ -26,8 +26,8 @@ defmodule FileStorageApi.API.Azure.Container do
   end
 
   @impl true
-  def list_files(container_name, connection_name, options) do
-    case AzureContainer.list_blobs(container(container_name, connection_name), convert_options(options)) do
+  def list_files(container_name, connection, options) do
+    case AzureContainer.list_blobs(container(container_name, connection), convert_options(options)) do
       {:ok, %{blobs: files, max_results: max_results, next_marker: next_marker, date: date}} ->
         {:ok,
          %Container{
