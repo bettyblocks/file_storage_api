@@ -4,7 +4,9 @@ defmodule FileStorageApi.API.Azure.Base do
   alias ExMicrosoftAzureStorage.Storage
   alias ExMicrosoftAzureStorage.Storage.Container
 
-  @spec storage(atom | map | keyword) :: %Storage{}
+  @type storage_struct :: %Storage{}
+
+  @spec storage(atom | map | keyword) :: storage_struct
   def storage(connection) when is_atom(connection) do
     azure_blob =
       case connection do
