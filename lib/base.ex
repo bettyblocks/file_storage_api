@@ -14,12 +14,11 @@ defmodule FileStorageApi.Base do
     end
   end
 
-  @spec storage_engine(atom | map) :: S3 | Azure | Mock
+  @spec storage_engine(atom | map | keyword) :: S3 | Azure | Mock
   defp storage_engine(:default) do
     :file_storage_api
     |> Application.get_env(:storage_api)
-    |> Keyword.get(:engine)
-    |> convert_to_module()
+    |> storage_engine()
   end
 
   defp storage_engine(connection_name) when is_atom(connection_name) do
@@ -27,13 +26,12 @@ defmodule FileStorageApi.Base do
 
     :file_storage_api
     |> Application.get_env(engine_key)
-    |> Keyword.get(:engine)
-    |> convert_to_module()
+    |> storage_engine()
   end
 
   defp storage_engine(connection) do
     connection
-    |> Map.get(:engine)
+    |> Access.get(:engine)
     |> convert_to_module()
   end
 

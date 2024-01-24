@@ -57,14 +57,14 @@ It will need the package `file` in linux to be able to read mime types and work.
 
 ## Dynamic configuration
 
-You can use a map to pass a long dynamic configuration in the connection field.
+You can use a map or keyword list to pass a long dynamic configuration in the connection field.
 
 For azure
 ```elixir
 %{
   engine: :azure,
   config: %{
-    host: "postfix.docker",
+    host: "postfix.example",
     secret_key: "YWNjb3VudF9rZXk=",
     access_key: "amazing"
   }
