@@ -1,8 +1,8 @@
 defmodule FileStorageApi.Base do
   @moduledoc false
 
-  def api_module(connection_name, module) when module in [Container, File] do
-    Module.concat([FileStorageApi.API, storage_engine(connection_name), module])
+  def api_module(connection, module) when module in [Container, File] do
+    Module.concat([FileStorageApi.API, storage_engine(connection), module])
   end
 
   @spec read_from_map(map, atom, any) :: any
@@ -14,20 +14,24 @@ defmodule FileStorageApi.Base do
     end
   end
 
-  @spec storage_engine(atom) :: S3 | Azure | Mock
+  @spec storage_engine(atom | map | keyword) :: S3 | Azure | Mock
   defp storage_engine(:default) do
     :file_storage_api
     |> Application.get_env(:storage_api)
-    |> Keyword.get(:engine)
-    |> convert_to_module()
+    |> storage_engine()
   end
 
-  defp storage_engine(connection_name) do
+  defp storage_engine(connection_name) when is_atom(connection_name) do
     engine_key = String.to_existing_atom("#{connection_name}_conn")
 
     :file_storage_api
     |> Application.get_env(engine_key)
-    |> Keyword.get(:engine)
+    |> storage_engine()
+  end
+
+  defp storage_engine(connection) do
+    connection
+    |> Access.get(:engine)
     |> convert_to_module()
   end
 

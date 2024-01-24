@@ -12,9 +12,9 @@ defmodule FileStorageApi.Container do
           next_marker: String.t(),
           date: DateTime.t()
         }
-  @callback create(String.t(), atom, map) :: {:ok, map} | {:error, map}
+  @callback create(String.t(), atom | map, map) :: {:ok, map} | {:error, map}
   @type options :: [{:max_results, non_neg_integer} | {:marker, String.t()}]
-  @callback list_files(String.t(), atom, options) :: {:ok, [__MODULE__.t()]} | {:error, map}
+  @callback list_files(String.t(), atom | map, options) :: {:ok, [__MODULE__.t()]} | {:error, map}
 
   defstruct name: nil, files: [], max_results: nil, next_marker: nil, date: nil
 
@@ -25,9 +25,9 @@ defmodule FileStorageApi.Container do
   """
   @spec create(String.t(), map) :: any
   def create(container_name, opts \\ %{}) do
-    connection_name = read_from_map(opts, :container_name, :default)
+    connection = read_from_map(opts, :connection, :default)
 
-    api_module(connection_name, Container).create(container_name, connection_name, opts)
+    api_module(connection, Container).create(container_name, connection, opts)
   end
 
   @doc """
@@ -46,19 +46,19 @@ defmodule FileStorageApi.Container do
         []
       end
 
-    connection_name = Keyword.get(options, :connection_name, :default)
+    connection = Keyword.get(options, :connection, :default)
 
     Stream.resource(
-      fn -> api_module(connection_name, Container).list_files(container_name, connection_name, options) end,
+      fn -> api_module(connection, Container).list_files(container_name, connection, options) end,
       fn
         {:ok, %{files: files, next_marker: ""}} ->
           {files, :eos}
 
         {:ok, %{files: files, next_marker: next_marker}} ->
           {files,
-           api_module(connection_name, Container).list_files(
+           api_module(connection, Container).list_files(
              container_name,
-             connection_name,
+             connection,
              [marker: next_marker] ++ filtered_options
            )}
 

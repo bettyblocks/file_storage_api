@@ -11,9 +11,9 @@ defmodule FileStorageApi.API.Azure.File do
   alias ExMicrosoftAzureStorage.Storage.SharedAccessSignature
 
   @impl true
-  def upload(container_name, connection_name, filename, blob_name, opts \\ []) do
+  def upload(container_name, connection, filename, blob_name, opts \\ []) do
     case Blob.upload_file(
-           container(container_name, connection_name),
+           container(container_name, connection),
            filename,
            blob_name,
            Enum.into(opts, %{})
@@ -30,9 +30,9 @@ defmodule FileStorageApi.API.Azure.File do
   end
 
   @impl true
-  def delete(container_name, filename, connection_name) do
+  def delete(container_name, filename, connection) do
     container_name
-    |> container(connection_name)
+    |> container(connection)
     |> Blob.new(filename)
     |> Blob.delete_blob()
   end
@@ -43,7 +43,7 @@ defmodule FileStorageApi.API.Azure.File do
 
   def public_url(container_name, file_path, opts) do
     is_public = Keyword.get(opts, :public, false)
-    connection_name = Keyword.get(opts, :connection_name)
+    connection = Keyword.get(opts, :connection)
     start_time = Keyword.get(opts, :start_time)
     expire_time = Keyword.get(opts, :expire_time)
 
@@ -53,7 +53,7 @@ defmodule FileStorageApi.API.Azure.File do
         %{
           account_name: account_name
         } = storage
-    } = container(container_name, connection_name)
+    } = container(container_name, connection)
 
     if is_public do
       {:ok, "#{Storage.endpoint_url(storage, :blob_service)}/#{container_name}/#{file_path}"}
