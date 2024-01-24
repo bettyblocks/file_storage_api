@@ -75,7 +75,7 @@ For S3
 ```elixir
 %{
   engine: :s3,
-  config: %{host: "test.docker", secret_key: "test123", access_key: "amazing", scheme: "http://"}
+  config: %{host: "test.example", secret_key: "test123", access_key: "amazing", scheme: "http://"}
 }
 ```
 
