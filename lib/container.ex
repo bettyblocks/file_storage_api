@@ -12,9 +12,9 @@ defmodule FileStorageApi.Container do
           next_marker: String.t(),
           date: DateTime.t()
         }
-  @callback create(String.t(), atom | map, map) :: {:ok, map} | {:error, map}
+  @callback create(container_name, opts \\ %{}) :: {:ok, map} | {:error, map}
   @type options :: [{:max_results, non_neg_integer} | {:marker, String.t()} | {:connection, atom | map | keyword}]
-  @callback list_files(String.t(), atom | map, options) :: {:ok, [__MODULE__.t()]} | {:error, map}
+  @callback list_files(String.t(), options) :: {:ok, [__MODULE__.t()]} | {:error, map}
 
   defstruct name: nil, files: [], max_results: nil, next_marker: nil, date: nil
 
