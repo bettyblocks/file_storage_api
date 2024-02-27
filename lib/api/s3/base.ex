@@ -70,7 +70,10 @@ defmodule FileStorageApi.API.S3.Base do
     storage_api = Application.get_env(:file_storage_api, :storage_api, [])
 
     case Keyword.get(storage_api, :custom_ca_cert) do
-      cert when is_binary(cert) and byte_size(cert) > 0 -> [{:ssl_options, [cacertfile: cert]}]
+      cert when is_binary(cert) and byte_size(cert) > 0 -> [
+        {:ssl, [cacertfile: cert]},
+        {:ssl_options, [cacertfile: cert, verify: :verify_peer]}
+      ]
       _ -> []
     end
   end
