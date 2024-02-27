@@ -6,9 +6,9 @@ defmodule FileStorageApi.File do
   import FileStorageApi.Base
 
   @type t :: %__MODULE__{name: String.t(), properties: map}
-  @callback upload(String.t(), String.t(), String.t(), keyword) ::
+  @callback upload(String.t(), atom | map, String.t(), String.t(), Keyword.t()) ::
               {:ok, String.t()} | {:file_upload_error, map | tuple}
-  @callback delete(String.t(), String.t(), atom) :: {:ok, map} | {:error, map}
+  @callback delete(String.t(), String.t(), atom | map) :: {:ok, map} | {:error, map}
   @callback public_url(String.t(), String.t(), keyword) ::
               {:ok, String.t()} | {:error, String.t()}
   @callback last_modified(t) :: {:ok, DateTime.t()} | {:error, atom}
