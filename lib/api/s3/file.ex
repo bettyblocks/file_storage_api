@@ -43,7 +43,8 @@ defmodule FileStorageApi.API.S3.File do
     expires_in = Timex.Comparable.diff(expire_time, start_time, :seconds)
     storage_config = config(connection)
 
-    s3_signed = S3.presigned_url(Config.new(:s3, storage_config), :get, container_name, file_path, expires_in: expires_in)
+    s3_signed =
+      S3.presigned_url(Config.new(:s3, storage_config), :get, container_name, file_path, expires_in: expires_in)
 
     case s3_signed do
       {:ok, url} -> {:ok, transform_url(url, public?, storage_config)}
@@ -53,7 +54,7 @@ defmodule FileStorageApi.API.S3.File do
 
   @spec transform_url(binary, boolean, Keyword.t()) :: binary
   defp transform_url(signed_url, public?, storage_config) do
-    url
+    signed_url
     |> URI.parse()
     |> replace_host(storage_config[:external_host])
     |> remove_query_params(public?)
@@ -61,18 +62,18 @@ defmodule FileStorageApi.API.S3.File do
   end
 
   @spec replace_host(URI.t(), binary | nil) :: URI.t()
-  defp replace_host(url, nil), do: url
+  defp replace_host(parsed_url, nil), do: parsed_url
 
-  defp replace_host(url, external_host) when is_binary(external_host) do
+  defp replace_host(parsed_url, external_host) when is_binary(external_host) do
     Map.put(parsed_url, :host, external_host)
   end
 
   @spec remove_query_params(URI.t(), boolean) :: URI.t()
-  defp remove_query_params(url, true) do
+  defp remove_query_params(parsed_url, true) do
     Map.put(parsed_url, :query, nil)
   end
 
-  defp remove_query_params(url, _), do: url
+  defp remove_query_params(parsed_url, _), do: parsed_url
 
   @impl true
   def last_modified(%FileStorageApi.File{properties: %{last_modified: timestamp}}) do
