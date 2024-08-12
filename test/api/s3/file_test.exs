@@ -121,6 +121,8 @@ defmodule FileStorageApi.API.S3.FileTest do
       uri = URI.parse(url)
 
       assert "/block-store-container/test.png" == uri.path
+      assert "test.docker" == uri.host
+      assert uri.query =~ "AWS4-HMAC-SHA256"
     end
 
     test "able to create a public url for files also works with / at start" do
@@ -136,6 +138,7 @@ defmodule FileStorageApi.API.S3.FileTest do
       uri = URI.parse(url)
 
       assert "/block-store-container/test.png" == uri.path
+      assert "test.docker" == uri.host
     end
 
     test "timestamps should be correctly set in url" do
@@ -187,6 +190,40 @@ defmodule FileStorageApi.API.S3.FileTest do
 
       assert {:error, %{}} =
                File.upload("block-store-container", @connection, file_path, nil, content_type: "image/png")
+    end
+
+    test "signing with external host will replace the host" do
+      {:ok, url} =
+        File.public_url(
+          "block-store-container",
+          "test.png",
+          start_time: Timex.now(),
+          expire_time: Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+          connection: put_in(@connection, [:config, :external_host], "example.com")
+        )
+
+      uri = URI.parse(url)
+
+      assert "/block-store-container/test.png" == uri.path
+      assert "example.com" == uri.host
+    end
+
+    test "signing with public removes the signature" do
+      {:ok, url} =
+        File.public_url(
+          "block-store-container",
+          "test.png",
+          start_time: Timex.now(),
+          expire_time: Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+          connection: @connection,
+          public: true
+        )
+
+      uri = URI.parse(url)
+
+      assert "/block-store-container/test.png" == uri.path
+      assert "test.docker" == uri.host
+      assert is_nil(uri.query)
     end
   end
 end

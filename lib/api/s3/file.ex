@@ -35,34 +35,45 @@ defmodule FileStorageApi.API.S3.File do
   def public_url(container_name, "/" <> file_path, opts), do: public_url(container_name, file_path, opts)
 
   def public_url(container_name, file_path, opts) do
-    is_public = Keyword.get(opts, :public, false)
+    public? = Keyword.get(opts, :public, false)
     connection = Keyword.get(opts, :connection)
     start_time = Keyword.get(opts, :start_time)
     expire_time = Keyword.get(opts, :expire_time)
 
     expires_in = Timex.Comparable.diff(expire_time, start_time, :seconds)
+    storage_config = config(connection)
 
     s3_signed =
-      S3.presigned_url(Config.new(:s3, config(connection)), :get, container_name, file_path, expires_in: expires_in)
+      S3.presigned_url(Config.new(:s3, storage_config), :get, container_name, file_path, expires_in: expires_in)
 
     case s3_signed do
-      {:ok, url} ->
-        if is_public do
-          public_url =
-            url
-            |> URI.parse()
-            |> Map.put(:query, nil)
-            |> URI.to_string()
-
-          {:ok, public_url}
-        else
-          {:ok, url}
-        end
-
-      error ->
-        error
+      {:ok, url} -> {:ok, transform_url(url, public?, storage_config)}
+      error -> error
     end
   end
+
+  @spec transform_url(binary, boolean, Keyword.t()) :: binary
+  defp transform_url(signed_url, public?, storage_config) do
+    signed_url
+    |> URI.parse()
+    |> replace_host(storage_config[:external_host])
+    |> remove_query_params(public?)
+    |> URI.to_string()
+  end
+
+  @spec replace_host(URI.t(), binary | nil) :: URI.t()
+  defp replace_host(parsed_url, nil), do: parsed_url
+
+  defp replace_host(parsed_url, external_host) when is_binary(external_host) do
+    Map.put(parsed_url, :host, external_host)
+  end
+
+  @spec remove_query_params(URI.t(), boolean) :: URI.t()
+  defp remove_query_params(parsed_url, true) do
+    Map.put(parsed_url, :query, nil)
+  end
+
+  defp remove_query_params(parsed_url, _), do: parsed_url
 
   @impl true
   def last_modified(%FileStorageApi.File{properties: %{last_modified: timestamp}}) do

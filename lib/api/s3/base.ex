@@ -25,6 +25,7 @@ defmodule FileStorageApi.API.S3.Base do
       secret_access_key: Access.get(s3_config, :secret_key),
       s3_auth_version: Access.get(s3_config, :s3_auth_version, 4),
       host: Access.get(s3_config, :host),
+      external_host: Access.get(s3_config, :external_host),
       scheme: Access.get(s3_config, :scheme),
       port: Access.get(s3_config, :port),
       http_opts: http_opts()
@@ -70,11 +71,14 @@ defmodule FileStorageApi.API.S3.Base do
     storage_api = Application.get_env(:file_storage_api, :storage_api, [])
 
     case Keyword.get(storage_api, :custom_ca_cert) do
-      cert when is_binary(cert) and byte_size(cert) > 0 -> [
-        {:ssl, [cacertfile: cert]},
-        {:ssl_options, [cacertfile: cert, verify: :verify_peer]}
-      ]
-      _ -> []
+      cert when is_binary(cert) and byte_size(cert) > 0 ->
+        [
+          {:ssl, [cacertfile: cert]},
+          {:ssl_options, [cacertfile: cert, verify: :verify_peer]}
+        ]
+
+      _ ->
+        []
     end
   end
 end
