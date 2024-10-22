@@ -66,7 +66,7 @@ defmodule FileStorageApi.File do
   container_name: name of container file is stored in
   filename: reference path of the file stored in the container
   """
-  @spec delete(String.t(), String.t(), atom) :: {:ok, map} | {:error, map}
+  @spec delete(String.t(), String.t(), atom | map) :: {:ok, map} | {:error, map}
   def delete(container_name, filename, connection \\ :default) do
     api_module(connection, File).delete(container_name, filename, connection)
   end
