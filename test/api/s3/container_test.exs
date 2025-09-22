@@ -85,6 +85,24 @@ defmodule FileStorageApi.API.S3.ContainerTest do
 
       assert {:error, %{}} = Container.list_files("block-store-container", :default, [])
     end
+
+    test "able to delete the bucket operation" do
+      expect(AwsMock, :request, fn operation, _config ->
+        assert %{http_method: :delete, path: "/", bucket: "block-store-container"} = operation
+        {:ok, %{}}
+      end)
+
+      assert {:ok, %{}} == Container.delete("block-store-container", :default)
+    end
+
+    test "delete errors should be returned" do
+      expect(AwsMock, :request, fn operation, _config ->
+        assert %{http_method: :delete, path: "/", bucket: "block-store-container"} = operation
+        {:error, %{status_code: 404, body: "NoSuchBucket"}}
+      end)
+
+      assert {:error, %{status_code: 404, body: "NoSuchBucket"}} = Container.delete("block-store-container", :default)
+    end
   end
 
   describe "use configmap as input" do
@@ -164,6 +182,25 @@ defmodule FileStorageApi.API.S3.ContainerTest do
       end)
 
       assert {:error, %{}} = Container.list_files("block-store-container", @connection, [])
+    end
+
+    test "able to delete the bucket operation" do
+      expect(AwsMock, :request, fn operation, _config ->
+        assert %{http_method: :delete, path: "/", bucket: "block-store-container"} = operation
+        {:ok, %{}}
+      end)
+
+      assert {:ok, %{}} == Container.delete("block-store-container", @connection)
+    end
+
+    test "delete errors should be returned" do
+      expect(AwsMock, :request, fn operation, _config ->
+        assert %{http_method: :delete, path: "/", bucket: "block-store-container"} = operation
+        {:error, %{status_code: 404, body: "NoSuchBucket"}}
+      end)
+
+      assert {:error, %{status_code: 404, body: "NoSuchBucket"}} =
+               Container.delete("block-store-container", @connection)
     end
   end
 end

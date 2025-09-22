@@ -13,6 +13,7 @@ defmodule FileStorageApi.Container do
           date: DateTime.t()
         }
   @callback create(String.t(), atom | map, map) :: {:ok, map} | {:error, map}
+  @callback delete(String.t(), atom | map) :: {:ok, map} | {:error, map}
   @type options :: [
           {:max_results, non_neg_integer}
           | {:marker, String.t()}
@@ -33,6 +34,11 @@ defmodule FileStorageApi.Container do
     connection = read_from_map(opts, :connection, :default)
 
     api_module(connection, Container).create(container_name, connection, opts)
+  end
+
+  @spec delete(String.t(), atom | map) :: any
+  def delete(container_name, connection \\ :default) do
+    api_module(connection, Container).delete(container_name, connection)
   end
 
   @doc """
