@@ -81,6 +81,22 @@ defmodule FileStorageApi.ContainerTest do
 
       assert {:ok, %{}} == Container.create("block-store-container")
     end
+
+    test "able to delete the container" do
+      expect(MockContainer, :delete, fn "block-store-container", :default ->
+        {:ok, %{}}
+      end)
+
+      assert {:ok, %{}} == Container.delete("block-store-container")
+    end
+
+    test "delete errors should be returned" do
+      expect(MockContainer, :delete, fn "block-store-container", :default ->
+        {:error, %{status_code: 404, body: "NoSuchBucket"}}
+      end)
+
+      assert {:error, %{status_code: 404, body: "NoSuchBucket"}} = Container.delete("block-store-container")
+    end
   end
 
   describe "connection configmap test" do
@@ -156,6 +172,22 @@ defmodule FileStorageApi.ContainerTest do
       end)
 
       assert {:ok, %{}} == Container.create("block-store-container", %{connection: @connection})
+    end
+
+    test "able to delete the container" do
+      expect(MockContainer, :delete, fn "block-store-container", @connection ->
+        {:ok, %{}}
+      end)
+
+      assert {:ok, %{}} == Container.delete("block-store-container", @connection)
+    end
+
+    test "delete errors should be returned" do
+      expect(MockContainer, :delete, fn "block-store-container", @connection ->
+        {:error, %{status_code: 404, body: "NoSuchBucket"}}
+      end)
+
+      assert {:error, %{status_code: 404, body: "NoSuchBucket"}} = Container.delete("block-store-container", @connection)
     end
   end
 end
