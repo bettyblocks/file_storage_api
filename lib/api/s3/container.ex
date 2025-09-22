@@ -39,6 +39,13 @@ defmodule FileStorageApi.API.S3.Container do
   end
 
   @impl true
+  def delete(container_name, connection) do
+    container_name
+    |> S3.delete_bucket()
+    |> request(connection)
+  end
+
+  @impl true
   def list_files(container_name, connection, options) do
     container_name
     |> S3.list_objects(convert_options(options))

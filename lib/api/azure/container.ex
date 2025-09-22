@@ -26,6 +26,13 @@ defmodule FileStorageApi.API.Azure.Container do
   end
 
   @impl true
+  def delete(container_name, connection) do
+    container_name
+    |> container(connection)
+    |> AzureContainer.delete_container()
+  end
+
+  @impl true
   def list_files(container_name, connection, options) do
     case AzureContainer.list_blobs(container(container_name, connection), convert_options(options)) do
       {:ok, %{blobs: files, max_results: max_results, next_marker: next_marker, date: date}} ->
