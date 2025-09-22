@@ -187,7 +187,8 @@ defmodule FileStorageApi.ContainerTest do
         {:error, %{status_code: 404, body: "NoSuchBucket"}}
       end)
 
-      assert {:error, %{status_code: 404, body: "NoSuchBucket"}} = Container.delete("block-store-container", @connection)
+      assert {:error, %{status_code: 404, body: "NoSuchBucket"}} =
+               Container.delete("block-store-container", @connection)
     end
   end
 end

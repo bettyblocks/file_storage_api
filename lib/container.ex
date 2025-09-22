@@ -36,7 +36,7 @@ defmodule FileStorageApi.Container do
     api_module(connection, Container).create(container_name, connection, opts)
   end
 
-  @spec delete(String.t(), map) :: any
+  @spec delete(String.t(), atom | map) :: any
   def delete(container_name, connection \\ :default) do
     api_module(connection, Container).delete(container_name, connection)
   end
