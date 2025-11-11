@@ -48,7 +48,7 @@ defmodule FileStorageApi.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_microsoft_azure_storage, "~> 1.0"},
+      {:ex_microsoft_azure_storage, "~> 1.1"},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:ex_aws, "~> 2.1"},
