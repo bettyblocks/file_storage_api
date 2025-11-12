@@ -33,7 +33,7 @@ defmodule FileStorageApi.File do
   def upload(container_name, filename, blob_name, opts \\ []) do
     force_container = Keyword.get(opts, :force_container, true)
     connection = Keyword.get(opts, :connection, :default)
-    upload_options = Keyword.take(opts, [:cache_control])
+    upload_options = Keyword.take(opts, [:cache_control, :meta])
 
     with {:ok, file_mime_type} <- mime_type(filename),
          {{:ok, file}, _} <-
