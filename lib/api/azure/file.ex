@@ -87,13 +87,11 @@ defmodule FileStorageApi.API.Azure.File do
   defp storage_protocol(_context), do: "https"
 
   defp convert_opts(opts) do
-    opts
-    |> Enum.map(fn {key, value} ->
+    Map.new(opts, fn {key, value} ->
       case key do
         :meta -> {key, Enum.map(value, fn {k, v} -> {String.replace(k, "-", "_"), v} end)}
         _ -> {key, value}
       end
     end)
-    |> Enum.into(%{})
   end
 end
