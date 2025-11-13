@@ -12,11 +12,13 @@ defmodule FileStorageApi.API.Azure.File do
 
   @impl true
   def upload(container_name, connection, filename, blob_name, opts \\ []) do
+    converted_opts = convert_opts(opts)
+
     case Blob.upload_file(
            container(container_name, connection),
            filename,
            blob_name,
-           Enum.into(opts, %{})
+           converted_opts
          ) do
       {:ok, %{request_url: _request_url}} ->
         {:ok, blob_name || Path.basename(filename)}
@@ -83,4 +85,15 @@ defmodule FileStorageApi.API.Azure.File do
 
   defp storage_protocol(%{is_development_factory: true}), do: "http"
   defp storage_protocol(_context), do: "https"
+
+  defp convert_opts(opts) do
+    opts
+    |> Enum.map(fn {key, value} ->
+      case key do
+        :meta -> {key, Enum.map(value, fn {k, v} -> {String.replace(k, "-", "_"), v} end)}
+        _ -> {key, value}
+      end
+    end)
+    |> Enum.into(%{})
+  end
 end
