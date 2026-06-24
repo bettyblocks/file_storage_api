@@ -75,9 +75,13 @@ defmodule FileStorageApi.Container do
 
         :eos ->
           {:halt, :eos}
+
+        {:error, error} ->
+          {[{:error, error}], :eos}
       end,
-      fn :eos ->
-        :ok
+      fn
+        :eos ->
+          :ok
       end
     )
   end

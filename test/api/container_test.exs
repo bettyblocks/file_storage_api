@@ -74,6 +74,31 @@ defmodule FileStorageApi.ContainerTest do
              ] == Enum.map(Container.list_files("test-container", []), & &1)
     end
 
+    test "listing files error should be returned" do
+      expect(MockContainer, :list_files, fn container_name, :default, _options ->
+        assert container_name == "test-container"
+
+        {:error,
+         %{
+           status: 404,
+           body: "Container Not found",
+           error_message: ["The specified container does not exist."],
+           headers: []
+         }}
+      end)
+
+      assert [
+               {:error,
+                %{
+                  status: 404,
+                  body: "Container Not found",
+                  headers: [],
+                  error_message: ["The specified container does not exist."]
+                }}
+             ] ==
+               Enum.map(Container.list_files("test-container", []), & &1)
+    end
+
     test "able to create the container" do
       expect(MockContainer, :create, fn "block-store-container", :default, %{} ->
         {:ok, %{}}
