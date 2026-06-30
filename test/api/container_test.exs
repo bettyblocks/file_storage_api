@@ -25,7 +25,7 @@ defmodule FileStorageApi.ContainerTest do
          %Container{
            max_results: "5000",
            next_marker: "",
-           date: Timex.now(),
+           date: DateTime.utc_now(),
            files: [%File{name: "test.jpg"}]
          }}
       end)
@@ -142,7 +142,7 @@ defmodule FileStorageApi.ContainerTest do
          %Container{
            max_results: "5000",
            next_marker: "",
-           date: Timex.now(),
+           date: DateTime.utc_now(),
            files: [%File{name: "test.jpg"}]
          }}
       end)

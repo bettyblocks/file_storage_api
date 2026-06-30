@@ -14,14 +14,12 @@ defmodule FileStorageApi.MixProject do
       dialyzer: [
         plt_file: {:no_warn, "priv/plts/dialyzer.plt"}
       ],
-      test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [
-        coveralls: :test,
-        "coveralls.detail": :test,
-        "coveralls.post": :test,
-        "coveralls.html": :test
-      ]
+      test_coverage: [tool: ExCoveralls]
     ]
+  end
+
+  def cli do
+    [preferred_envs: [coveralls: :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test]]
   end
 
   # Specifies which paths to compile per environment.
@@ -48,7 +46,7 @@ defmodule FileStorageApi.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_microsoft_azure_storage, "~> 1.1"},
+      {:ex_microsoft_azure_storage, "~> 2.0"},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:ex_aws, "~> 2.1"},
@@ -60,6 +58,7 @@ defmodule FileStorageApi.MixProject do
       {:mime, "~> 2.0"},
       {:mox, "~> 1.0", only: :test},
       {:recase, "~> 0.5"},
+      {:styler, "~> 1.1", only: [:dev, :test], runtime: false},
       {:temp, "~> 0.4"}
     ]
   end

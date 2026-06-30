@@ -84,8 +84,8 @@ defmodule FileStorageApi.File do
     options =
       Keyword.merge(
         [
-          start_time: Timex.now(),
-          expire_time: Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+          start_time: DateTime.utc_now(),
+          expire_time: DateTime.add(DateTime.utc_now(), 86_400, :second),
           connection: :default,
           public: false
         ],

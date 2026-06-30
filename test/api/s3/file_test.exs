@@ -17,8 +17,8 @@ defmodule FileStorageApi.API.S3.FileTest do
         File.public_url(
           "block-store-container",
           "test.png",
-          start_time: Timex.now(),
-          expire_time: Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+          start_time: DateTime.utc_now(),
+          expire_time: DateTime.add(DateTime.utc_now(), 86_400, :second),
           connection: :default
         )
 
@@ -32,8 +32,8 @@ defmodule FileStorageApi.API.S3.FileTest do
         File.public_url(
           "block-store-container",
           "/test.png",
-          start_time: Timex.now(),
-          expire_time: Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+          start_time: DateTime.utc_now(),
+          expire_time: DateTime.add(DateTime.utc_now(), 86_400, :second),
           connection: :default
         )
 
@@ -43,8 +43,8 @@ defmodule FileStorageApi.API.S3.FileTest do
     end
 
     test "timestamps should be correctly set in url" do
-      start_time = Timex.now()
-      expire_time = Timex.add(Timex.now(), Timex.Duration.from_hours(1))
+      start_time = DateTime.utc_now()
+      expire_time = DateTime.add(DateTime.utc_now(), 3600, :second)
 
       {:ok, url} =
         File.public_url("block-store-container", "test.png",
@@ -113,8 +113,8 @@ defmodule FileStorageApi.API.S3.FileTest do
         File.public_url(
           "block-store-container",
           "test.png",
-          start_time: Timex.now(),
-          expire_time: Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+          start_time: DateTime.utc_now(),
+          expire_time: DateTime.add(DateTime.utc_now(), 86_400, :second),
           connection: @connection
         )
 
@@ -130,8 +130,8 @@ defmodule FileStorageApi.API.S3.FileTest do
         File.public_url(
           "block-store-container",
           "/test.png",
-          start_time: Timex.now(),
-          expire_time: Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+          start_time: DateTime.utc_now(),
+          expire_time: DateTime.add(DateTime.utc_now(), 86_400, :second),
           connection: @connection
         )
 
@@ -142,8 +142,8 @@ defmodule FileStorageApi.API.S3.FileTest do
     end
 
     test "timestamps should be correctly set in url" do
-      start_time = Timex.now()
-      expire_time = Timex.add(Timex.now(), Timex.Duration.from_hours(1))
+      start_time = DateTime.utc_now()
+      expire_time = DateTime.add(DateTime.utc_now(), 3600, :second)
 
       {:ok, url} =
         File.public_url("block-store-container", "test.png",
@@ -197,8 +197,8 @@ defmodule FileStorageApi.API.S3.FileTest do
         File.public_url(
           "block-store-container",
           "test.png",
-          start_time: Timex.now(),
-          expire_time: Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+          start_time: DateTime.utc_now(),
+          expire_time: DateTime.add(DateTime.utc_now(), 86_400, :second),
           connection: put_in(@connection, [:config, :external_host], "example.com")
         )
 
@@ -213,8 +213,8 @@ defmodule FileStorageApi.API.S3.FileTest do
         File.public_url(
           "block-store-container",
           "test.png",
-          start_time: Timex.now(),
-          expire_time: Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+          start_time: DateTime.utc_now(),
+          expire_time: DateTime.add(DateTime.utc_now(), 86_400, :second),
           connection: @connection,
           public: true
         )
