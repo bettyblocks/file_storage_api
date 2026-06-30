@@ -1,10 +1,11 @@
 defmodule FileStorageApi.ContainerTest do
   use ExUnit.Case
 
-  alias FileStorageApi.API.Mock.Container, as: MockContainer
-  alias FileStorageApi.{Container, File}
-
   import Mox
+
+  alias FileStorageApi.API.Mock.Container, as: MockContainer
+  alias FileStorageApi.Container
+  alias FileStorageApi.File
 
   setup :verify_on_exit!
 
@@ -25,7 +26,7 @@ defmodule FileStorageApi.ContainerTest do
          %Container{
            max_results: "5000",
            next_marker: "",
-           date: Timex.now(),
+           date: DateTime.utc_now(),
            files: [%File{name: "test.jpg"}]
          }}
       end)
@@ -142,7 +143,7 @@ defmodule FileStorageApi.ContainerTest do
          %Container{
            max_results: "5000",
            next_marker: "",
-           date: Timex.now(),
+           date: DateTime.utc_now(),
            files: [%File{name: "test.jpg"}]
          }}
       end)

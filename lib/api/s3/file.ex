@@ -1,9 +1,9 @@
 defmodule FileStorageApi.API.S3.File do
   @moduledoc false
 
-  import FileStorageApi.API.S3.Base
-
   @behaviour FileStorageApi.File
+
+  import FileStorageApi.API.S3.Base
 
   alias ExAws.Config
   alias ExAws.S3
@@ -40,7 +40,7 @@ defmodule FileStorageApi.API.S3.File do
     start_time = Keyword.get(opts, :start_time)
     expire_time = Keyword.get(opts, :expire_time)
 
-    expires_in = Timex.Comparable.diff(expire_time, start_time, :seconds)
+    expires_in = DateTime.diff(expire_time, start_time, :second)
     storage_config = config(connection)
 
     s3_signed =
@@ -77,7 +77,10 @@ defmodule FileStorageApi.API.S3.File do
 
   @impl true
   def last_modified(%FileStorageApi.File{properties: %{last_modified: timestamp}}) do
-    Timex.parse(timestamp, "{ISO:Extended}")
+    case DateTime.from_iso8601(timestamp) do
+      {:ok, datetime, _offset} -> {:ok, datetime}
+      {:error, reason} -> {:error, reason}
+    end
   end
 
   def last_modified(_), do: {:error, :incorrect_format}

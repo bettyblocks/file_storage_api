@@ -6,10 +6,6 @@ config :file_storage_api, :azure_blob,
   environment_suffix: "env_suffix",
   development: false
 
-config :file_storage_api, :storage_api, engine: S3
-
-config :file_storage_api, :s3_config, module: ExAws
-
 config :file_storage_api, :s3_config,
   host: "127.0.0.1",
   scheme: "http://",
@@ -17,5 +13,8 @@ config :file_storage_api, :s3_config,
   access_key_id: "admin",
   secret_access_key: "password",
   path_style: true
+
+config :file_storage_api, :s3_config, module: ExAws
+config :file_storage_api, :storage_api, engine: S3
 
 import_config "#{Mix.env()}.exs"

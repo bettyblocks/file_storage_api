@@ -1,11 +1,11 @@
 defmodule FileStorageApi.FileTest do
   use ExUnit.Case
 
+  import Mox
+
   alias FileStorageApi.API.Mock.Container, as: ContainerMock
   alias FileStorageApi.API.Mock.File, as: FileMock
   alias FileStorageApi.File
-
-  import Mox
 
   setup :verify_on_exit!
 
@@ -48,8 +48,7 @@ defmodule FileStorageApi.FileTest do
     test "not creating a container if not forcing on a failed upload" do
       file_path = "./test/support/hello.js"
 
-      FileMock
-      |> expect(:upload, 1, fn "block-store-container", :default, _file_path, "testfile", _ ->
+      expect(FileMock, :upload, 1, fn "block-store-container", :default, _file_path, "testfile", _ ->
         {:error, "Some Error"}
       end)
 
@@ -68,8 +67,7 @@ defmodule FileStorageApi.FileTest do
         {:ok, "file uploaded!"}
       end)
 
-      ContainerMock
-      |> expect(:create, 1, fn "block-store-container", :default, _ ->
+      expect(ContainerMock, :create, 1, fn "block-store-container", :default, _ ->
         {:ok, %{}}
       end)
 
@@ -79,13 +77,11 @@ defmodule FileStorageApi.FileTest do
     test "returning the error if creating container didn't help" do
       file_path = "./test/support/hello.js"
 
-      FileMock
-      |> expect(:upload, 2, fn "block-store-container", :default, ^file_path, _blob_name, _ ->
+      expect(FileMock, :upload, 2, fn "block-store-container", :default, ^file_path, _blob_name, _ ->
         {:error, :container_not_found}
       end)
 
-      ContainerMock
-      |> expect(:create, 1, fn "block-store-container", :default, _ ->
+      expect(ContainerMock, :create, 1, fn "block-store-container", :default, _ ->
         {:ok, %{}}
       end)
 
@@ -97,8 +93,8 @@ defmodule FileStorageApi.FileTest do
         start_time = Keyword.get(opts, :start_time)
         expire_time = Keyword.get(opts, :expire_time)
 
-        start_time_str = Timex.format!(start_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
-        expire_time_str = Timex.format!(expire_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
+        start_time_str = Calendar.strftime(start_time, "%Y-%m-%dT%H:%M:%SZ")
+        expire_time_str = Calendar.strftime(expire_time, "%Y-%m-%dT%H:%M:%SZ")
 
         "http://test.test/#{container_name}/#{filename}?st=#{start_time_str}&et=#{expire_time_str}"
       end)
@@ -110,21 +106,21 @@ defmodule FileStorageApi.FileTest do
     end
 
     test "able to request public url with custom expire" do
-      start_time = Timex.now()
-      expire_time = Timex.add(Timex.now(), Timex.Duration.from_hours(1))
+      start_time = DateTime.utc_now()
+      expire_time = DateTime.add(DateTime.utc_now(), 3600, :second)
 
       expect(FileMock, :public_url, fn container_name, filename, opts ->
         start_time = Keyword.get(opts, :start_time)
         expire_time = Keyword.get(opts, :expire_time)
 
-        start_time_str = Timex.format!(start_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
-        expire_time_str = Timex.format!(expire_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
+        start_time_str = Calendar.strftime(start_time, "%Y-%m-%dT%H:%M:%SZ")
+        expire_time_str = Calendar.strftime(expire_time, "%Y-%m-%dT%H:%M:%SZ")
 
         "http://test.test/#{container_name}/#{filename}?st=#{start_time_str}&et=#{expire_time_str}"
       end)
 
-      start_time_str = Timex.format!(start_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
-      expire_time_str = Timex.format!(expire_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
+      start_time_str = Calendar.strftime(start_time, "%Y-%m-%dT%H:%M:%SZ")
+      expire_time_str = Calendar.strftime(expire_time, "%Y-%m-%dT%H:%M:%SZ")
 
       assert "http://test.test/test-container/test.png?st=#{start_time_str}&et=#{expire_time_str}" ==
                File.public_url("test-container", "test.png", start_time: start_time, expire_time: expire_time)
@@ -176,8 +172,7 @@ defmodule FileStorageApi.FileTest do
     test "not creating a container if not forcing on a failed upload" do
       file_path = "./test/support/hello.js"
 
-      FileMock
-      |> expect(:upload, 1, fn "block-store-container", @connection, _file_path, "testfile", _ ->
+      expect(FileMock, :upload, 1, fn "block-store-container", @connection, _file_path, "testfile", _ ->
         {:error, "Some Error"}
       end)
 
@@ -199,8 +194,7 @@ defmodule FileStorageApi.FileTest do
         {:ok, "file uploaded!"}
       end)
 
-      ContainerMock
-      |> expect(:create, 1, fn "block-store-container", @connection, _ ->
+      expect(ContainerMock, :create, 1, fn "block-store-container", @connection, _ ->
         {:ok, %{}}
       end)
 
@@ -211,13 +205,11 @@ defmodule FileStorageApi.FileTest do
     test "returning the error if creating container didn't help" do
       file_path = "./test/support/hello.js"
 
-      FileMock
-      |> expect(:upload, 2, fn "block-store-container", @connection, ^file_path, _blob_name, _ ->
+      expect(FileMock, :upload, 2, fn "block-store-container", @connection, ^file_path, _blob_name, _ ->
         {:error, :container_not_found}
       end)
 
-      ContainerMock
-      |> expect(:create, 1, fn "block-store-container", @connection, _ ->
+      expect(ContainerMock, :create, 1, fn "block-store-container", @connection, _ ->
         {:ok, %{}}
       end)
 
@@ -230,8 +222,8 @@ defmodule FileStorageApi.FileTest do
         start_time = Keyword.get(opts, :start_time)
         expire_time = Keyword.get(opts, :expire_time)
 
-        start_time_str = Timex.format!(start_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
-        expire_time_str = Timex.format!(expire_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
+        start_time_str = Calendar.strftime(start_time, "%Y-%m-%dT%H:%M:%SZ")
+        expire_time_str = Calendar.strftime(expire_time, "%Y-%m-%dT%H:%M:%SZ")
 
         "http://test.test/#{container_name}/#{filename}?st=#{start_time_str}&et=#{expire_time_str}"
       end)
@@ -243,21 +235,21 @@ defmodule FileStorageApi.FileTest do
     end
 
     test "able to request public url with custom expire" do
-      start_time = Timex.now()
-      expire_time = Timex.add(Timex.now(), Timex.Duration.from_hours(1))
+      start_time = DateTime.utc_now()
+      expire_time = DateTime.add(DateTime.utc_now(), 3600, :second)
 
       expect(FileMock, :public_url, fn container_name, filename, opts ->
         start_time = Keyword.get(opts, :start_time)
         expire_time = Keyword.get(opts, :expire_time)
 
-        start_time_str = Timex.format!(start_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
-        expire_time_str = Timex.format!(expire_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
+        start_time_str = Calendar.strftime(start_time, "%Y-%m-%dT%H:%M:%SZ")
+        expire_time_str = Calendar.strftime(expire_time, "%Y-%m-%dT%H:%M:%SZ")
 
         "http://test.test/#{container_name}/#{filename}?st=#{start_time_str}&et=#{expire_time_str}"
       end)
 
-      start_time_str = Timex.format!(start_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
-      expire_time_str = Timex.format!(expire_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
+      start_time_str = Calendar.strftime(start_time, "%Y-%m-%dT%H:%M:%SZ")
+      expire_time_str = Calendar.strftime(expire_time, "%Y-%m-%dT%H:%M:%SZ")
 
       assert "http://test.test/test-container/test.png?st=#{start_time_str}&et=#{expire_time_str}" ==
                File.public_url("test-container", "test.png",

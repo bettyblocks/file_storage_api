@@ -13,8 +13,8 @@ defmodule FileStorageApi.API.Azure.FileTest do
         File.public_url(
           "block-store-container",
           "test.png",
-          start_time: Timex.now(),
-          expire_time: Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+          start_time: DateTime.utc_now(),
+          expire_time: DateTime.add(DateTime.utc_now(), 86_400, :second),
           connection: :default
         )
 
@@ -24,8 +24,8 @@ defmodule FileStorageApi.API.Azure.FileTest do
     end
 
     test "timestamps should be correctly set in url" do
-      start_time = Timex.now()
-      expire_time = Timex.add(Timex.now(), Timex.Duration.from_hours(1))
+      start_time = DateTime.utc_now()
+      expire_time = DateTime.add(DateTime.utc_now(), 3600, :second)
 
       {:ok, url} =
         File.public_url("block-store-container", "test.png",
@@ -36,8 +36,8 @@ defmodule FileStorageApi.API.Azure.FileTest do
 
       uri = URI.parse(url)
 
-      start_time_str = Timex.format!(start_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
-      expire_time_str = Timex.format!(expire_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
+      start_time_str = Calendar.strftime(start_time, "%Y-%m-%dT%H:%M:%SZ")
+      expire_time_str = Calendar.strftime(expire_time, "%Y-%m-%dT%H:%M:%SZ")
 
       %{"se" => ^expire_time_str, "st" => ^start_time_str} = URI.decode_query(uri.query)
     end
@@ -67,8 +67,8 @@ defmodule FileStorageApi.API.Azure.FileTest do
         File.public_url(
           "block-store-container",
           "test.png",
-          start_time: Timex.now(),
-          expire_time: Timex.add(Timex.now(), Timex.Duration.from_days(1)),
+          start_time: DateTime.utc_now(),
+          expire_time: DateTime.add(DateTime.utc_now(), 86_400, :second),
           connection: @connection
         )
 
@@ -78,8 +78,8 @@ defmodule FileStorageApi.API.Azure.FileTest do
     end
 
     test "timestamps should be correctly set in url" do
-      start_time = Timex.now()
-      expire_time = Timex.add(Timex.now(), Timex.Duration.from_hours(1))
+      start_time = DateTime.utc_now()
+      expire_time = DateTime.add(DateTime.utc_now(), 3600, :second)
 
       {:ok, url} =
         File.public_url("block-store-container", "test.png",
@@ -90,8 +90,8 @@ defmodule FileStorageApi.API.Azure.FileTest do
 
       uri = URI.parse(url)
 
-      start_time_str = Timex.format!(start_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
-      expire_time_str = Timex.format!(expire_time, "{YYYY}-{0M}-{0D}T{0h24}:{0m}:{0s}Z")
+      start_time_str = Calendar.strftime(start_time, "%Y-%m-%dT%H:%M:%SZ")
+      expire_time_str = Calendar.strftime(expire_time, "%Y-%m-%dT%H:%M:%SZ")
 
       %{"se" => ^expire_time_str, "st" => ^start_time_str} = URI.decode_query(uri.query)
     end

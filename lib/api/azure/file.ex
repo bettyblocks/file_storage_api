@@ -1,9 +1,9 @@
 defmodule FileStorageApi.API.Azure.File do
   @moduledoc false
 
-  import FileStorageApi.API.Azure.Base
-
   @behaviour FileStorageApi.File
+
+  import FileStorageApi.API.Azure.Base
 
   alias ExMicrosoftAzureStorage.Storage
   alias ExMicrosoftAzureStorage.Storage.ApiVersion
@@ -40,8 +40,7 @@ defmodule FileStorageApi.API.Azure.File do
   end
 
   @impl true
-  def public_url(container_name, "/" <> file_path, opts),
-    do: public_url(container_name, file_path, opts)
+  def public_url(container_name, "/" <> file_path, opts), do: public_url(container_name, file_path, opts)
 
   def public_url(container_name, file_path, opts) do
     is_public = Keyword.get(opts, :public, false)
