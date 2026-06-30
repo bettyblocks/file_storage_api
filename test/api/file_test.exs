@@ -1,11 +1,11 @@
 defmodule FileStorageApi.FileTest do
   use ExUnit.Case
 
+  import Mox
+
   alias FileStorageApi.API.Mock.Container, as: ContainerMock
   alias FileStorageApi.API.Mock.File, as: FileMock
   alias FileStorageApi.File
-
-  import Mox
 
   setup :verify_on_exit!
 
@@ -48,8 +48,7 @@ defmodule FileStorageApi.FileTest do
     test "not creating a container if not forcing on a failed upload" do
       file_path = "./test/support/hello.js"
 
-      FileMock
-      |> expect(:upload, 1, fn "block-store-container", :default, _file_path, "testfile", _ ->
+      expect(FileMock, :upload, 1, fn "block-store-container", :default, _file_path, "testfile", _ ->
         {:error, "Some Error"}
       end)
 
@@ -68,8 +67,7 @@ defmodule FileStorageApi.FileTest do
         {:ok, "file uploaded!"}
       end)
 
-      ContainerMock
-      |> expect(:create, 1, fn "block-store-container", :default, _ ->
+      expect(ContainerMock, :create, 1, fn "block-store-container", :default, _ ->
         {:ok, %{}}
       end)
 
@@ -79,13 +77,11 @@ defmodule FileStorageApi.FileTest do
     test "returning the error if creating container didn't help" do
       file_path = "./test/support/hello.js"
 
-      FileMock
-      |> expect(:upload, 2, fn "block-store-container", :default, ^file_path, _blob_name, _ ->
+      expect(FileMock, :upload, 2, fn "block-store-container", :default, ^file_path, _blob_name, _ ->
         {:error, :container_not_found}
       end)
 
-      ContainerMock
-      |> expect(:create, 1, fn "block-store-container", :default, _ ->
+      expect(ContainerMock, :create, 1, fn "block-store-container", :default, _ ->
         {:ok, %{}}
       end)
 
@@ -176,8 +172,7 @@ defmodule FileStorageApi.FileTest do
     test "not creating a container if not forcing on a failed upload" do
       file_path = "./test/support/hello.js"
 
-      FileMock
-      |> expect(:upload, 1, fn "block-store-container", @connection, _file_path, "testfile", _ ->
+      expect(FileMock, :upload, 1, fn "block-store-container", @connection, _file_path, "testfile", _ ->
         {:error, "Some Error"}
       end)
 
@@ -199,8 +194,7 @@ defmodule FileStorageApi.FileTest do
         {:ok, "file uploaded!"}
       end)
 
-      ContainerMock
-      |> expect(:create, 1, fn "block-store-container", @connection, _ ->
+      expect(ContainerMock, :create, 1, fn "block-store-container", @connection, _ ->
         {:ok, %{}}
       end)
 
@@ -211,13 +205,11 @@ defmodule FileStorageApi.FileTest do
     test "returning the error if creating container didn't help" do
       file_path = "./test/support/hello.js"
 
-      FileMock
-      |> expect(:upload, 2, fn "block-store-container", @connection, ^file_path, _blob_name, _ ->
+      expect(FileMock, :upload, 2, fn "block-store-container", @connection, ^file_path, _blob_name, _ ->
         {:error, :container_not_found}
       end)
 
-      ContainerMock
-      |> expect(:create, 1, fn "block-store-container", @connection, _ ->
+      expect(ContainerMock, :create, 1, fn "block-store-container", @connection, _ ->
         {:ok, %{}}
       end)
 

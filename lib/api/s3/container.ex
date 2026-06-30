@@ -66,8 +66,7 @@ defmodule FileStorageApi.API.S3.Container do
 
   @spec put_public_policy(String.t()) :: ExAws.Operation.t()
   defp put_public_policy(bucket_name) do
-    bucket_name
-    |> S3.put_bucket_policy(policy(bucket_name))
+    S3.put_bucket_policy(bucket_name, policy(bucket_name))
   end
 
   defp policy(bucket_name) do
@@ -104,7 +103,6 @@ defmodule FileStorageApi.API.S3.Container do
           cors_rules
       end
 
-    bucket
-    |> S3.put_bucket_cors(cors)
+    S3.put_bucket_cors(bucket, cors)
   end
 end

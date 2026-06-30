@@ -1,10 +1,9 @@
 defmodule FileStorageApi.API.Azure.BaseTest do
   use ExUnit.Case
 
-  alias FileStorageApi.API.Azure.Base
-
   alias ExMicrosoftAzureStorage.Storage
   alias ExMicrosoftAzureStorage.Storage.Container
+  alias FileStorageApi.API.Azure.Base
 
   test "module exists" do
     assert is_list(Base.module_info())

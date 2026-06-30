@@ -1,9 +1,9 @@
 defmodule FileStorageApi.API.S3.File do
   @moduledoc false
 
-  import FileStorageApi.API.S3.Base
-
   @behaviour FileStorageApi.File
+
+  import FileStorageApi.API.S3.Base
 
   alias ExAws.Config
   alias ExAws.S3

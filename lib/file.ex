@@ -42,7 +42,7 @@ defmodule FileStorageApi.File do
               connection,
               filename,
               blob_name,
-              Keyword.merge(upload_options, content_type: file_mime_type)
+              Keyword.put(upload_options, :content_type, file_mime_type)
             ), force_container} do
       {:ok, file}
     else
@@ -76,11 +76,7 @@ defmodule FileStorageApi.File do
   """
   @spec public_url(String.t(), String.t(), keyword) ::
           {:ok, String.t()} | {:error, String.t()}
-  def public_url(
-        container_name,
-        file_path,
-        opts
-      ) do
+  def public_url(container_name, file_path, opts) do
     options =
       Keyword.merge(
         [
